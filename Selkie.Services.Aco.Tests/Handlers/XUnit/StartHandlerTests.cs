@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using EasyNetQ;
 using JetBrains.Annotations;
 using NSubstitute;
 using Ploeh.AutoFixture.Xunit;
@@ -28,22 +27,6 @@ namespace Selkie.Services.Aco.Tests.Handlers.XUnit
 
             // Assert
             colony.Received().Start(1000);
-        }
-
-        [Theory]
-        [AutoNSubstituteData]
-        public void HandleSendsMessageTest([NotNull] [Frozen] IBus bus,
-                                           [NotNull] StartHandler sut)
-        {
-            // Arrange
-            // Act
-            sut.Handle(new StartMessage
-                       {
-                           Times = 1000
-                       });
-
-            // Assert
-            bus.Received().PublishAsync(Arg.Any <StartedMessage>());
         }
     }
 }

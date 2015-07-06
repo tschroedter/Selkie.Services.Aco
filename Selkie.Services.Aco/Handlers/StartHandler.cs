@@ -23,8 +23,6 @@ namespace Selkie.Services.Aco.Handlers
         internal override void Handle(StartMessage message)
         {
             Manager.Source.Start(message.Times);
-
-            Bus.PublishAsync(new StartedMessage()); // todo testing
         }
     }
 }
