@@ -1,28 +1,22 @@
-﻿using Castle.Core.Logging;
-using EasyNetQ;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
-using Selkie.Windsor;
 
 namespace Selkie.Services.Aco.Handlers
 {
-    [ProjectComponent(Lifestyle.Startable)]
     public sealed class StopRequestHandler
-        : BaseHandler <StopRequestMessage>,
-          IStopRequestHandler
+        : SelkieMessageHandler <StopRequestMessage>
     {
-        public StopRequestHandler([NotNull] ILogger logger,
-                                  [NotNull] IBus bus,
-                                  [NotNull] IColonySourceManager manager)
-            : base(logger,
-                   bus,
-                   manager)
+        private readonly IColonySourceManager m_Manager;
+
+        public StopRequestHandler([NotNull] IColonySourceManager manager)
         {
+            m_Manager = manager;
         }
 
-        internal override void Handle(StopRequestMessage message)
+        public override void Handle(StopRequestMessage message)
         {
-            Manager.Source.Stop();
+            m_Manager.Source.Stop();
         }
     }
 }

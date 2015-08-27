@@ -86,28 +86,28 @@
       <HintPath>..\packages\RabbitMQ.Client.3.5.3\lib\net40\RabbitMQ.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Selkie.Aco.Anthill, Version=0.6.277.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selkie.Aco.0.6.277.0\lib\net45\Selkie.Aco.Anthill.dll</HintPath>
+    <Reference Include="Selkie.Aco.Anthill, Version=0.6.288.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selkie.Aco.0.6.288.0\lib\net45\Selkie.Aco.Anthill.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Selkie.Aco.Ants, Version=0.6.277.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selkie.Aco.0.6.277.0\lib\net45\Selkie.Aco.Ants.dll</HintPath>
+    <Reference Include="Selkie.Aco.Ants, Version=0.6.288.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selkie.Aco.0.6.288.0\lib\net45\Selkie.Aco.Ants.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Selkie.Aco.Common, Version=0.6.277.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selkie.Aco.0.6.277.0\lib\net45\Selkie.Aco.Common.dll</HintPath>
+    <Reference Include="Selkie.Aco.Common, Version=0.6.288.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selkie.Aco.0.6.288.0\lib\net45\Selkie.Aco.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Selkie.Aco.Trails, Version=0.6.277.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selkie.Aco.0.6.277.0\lib\net45\Selkie.Aco.Trails.dll</HintPath>
+    <Reference Include="Selkie.Aco.Trails, Version=0.6.288.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selkie.Aco.0.6.288.0\lib\net45\Selkie.Aco.Trails.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Selkie.Common, Version=0.6.166.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selkie.Common.0.6.166.0\lib\net45\Selkie.Common.dll</HintPath>
+    <Reference Include="Selkie.Common, Version=0.6.172.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selkie.Common.0.6.172.0\lib\net45\Selkie.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Selkie.EasyNetQ, Version=0.6.144.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selkie.EasyNetQ.0.6.144.0\lib\net45\Selkie.EasyNetQ.dll</HintPath>
+    <Reference Include="Selkie.EasyNetQ, Version=0.6.162.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selkie.EasyNetQ.0.6.162.0\lib\net45\Selkie.EasyNetQ.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Selkie.NUnit.Extensions, Version=0.6.107.0, Culture=neutral, processorArchitecture=MSIL">
@@ -118,12 +118,13 @@
       <HintPath>..\packages\Selkie.Services.Aco.Common.0.6.8.0\lib\net45\Selkie.Services.Aco.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Selkie.Services.Common, Version=0.6.108.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selkie.Services.Common.0.6.108.0\lib\net45\Selkie.Services.Common.dll</HintPath>
+    <Reference Include="Selkie.Services.Common, Version=0.6.126.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selkie.Services.Common.0.6.126.0\lib\net45\Selkie.Services.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Selkie.Windsor">
-      <HintPath>..\packages\Selkie.Windsor.0.6.220.0\lib\net45\Selkie.Windsor.dll</HintPath>
+    <Reference Include="Selkie.Windsor, Version=0.6.224.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selkie.Windsor.0.6.224.0\lib\net45\Selkie.Windsor.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Selkie.XUnit.Extensions, Version=0.6.90.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Selkie.XUnit.Extensions.0.6.90.0\lib\net45\Selkie.XUnit.Extensions.dll</HintPath>
@@ -149,7 +150,6 @@
     <Compile Include="Handlers\XUnit\StartHandlerTests.cs" />
     <Compile Include="XUnit\ServiceColonyParametersTests.cs" />
     <Compile Include="XUnit\ServiceColonyTests.cs" />
-    <Compile Include="Handlers\XUnit\BaseHandlerTests.cs" />
     <Compile Include="Handlers\XUnit\CreateColonyHandlerTests.cs" />
     <Compile Include="Handlers\XUnit\PheromonesRequestHandlerTests.cs" />
     <Compile Include="Handlers\XUnit\StopRequestHandlerTests.cs" />

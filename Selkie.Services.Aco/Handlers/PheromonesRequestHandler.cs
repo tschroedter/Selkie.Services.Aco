@@ -1,28 +1,25 @@
-﻿using Castle.Core.Logging;
-using EasyNetQ;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
-using Selkie.Windsor;
 
 namespace Selkie.Services.Aco.Handlers
 {
-    [ProjectComponent(Lifestyle.Startable)]
     public sealed class PheromonesRequestHandler
-        : BaseHandler <PheromonesRequestMessage>,
-          IPheromonesRequestHandler
+        : SelkieMessageHandler <PheromonesRequestMessage>
     {
-        public PheromonesRequestHandler([NotNull] ILogger logger,
-                                        [NotNull] IBus bus,
+        private readonly ISelkieBus m_Bus;
+        private readonly IColonySourceManager m_Manager;
+
+        public PheromonesRequestHandler([NotNull] ISelkieBus bus,
                                         [NotNull] IColonySourceManager manager)
-            : base(logger,
-                   bus,
-                   manager)
         {
+            m_Bus = bus;
+            m_Manager = manager;
         }
 
-        internal override void Handle(PheromonesRequestMessage message)
+        public override void Handle(PheromonesRequestMessage message)
         {
-            IServiceColony colony = Manager.Source;
+            IServiceColony colony = m_Manager.Source;
 
             var reply = new PheromonesMessage
                         {
@@ -32,7 +29,7 @@ namespace Selkie.Services.Aco.Handlers
                             Values = colony.PheromonesToArray()
                         };
 
-            Bus.PublishAsync(reply);
+            m_Bus.PublishAsync(reply);
         }
     }
 }

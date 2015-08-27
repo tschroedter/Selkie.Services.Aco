@@ -1,5 +1,4 @@
 using System;
-using Selkie.EasyNetQ.Extensions;
 using Selkie.Services.Aco.Common.Messages;
 using Selkie.Windsor.Extensions;
 using TechTalk.SpecFlow;
@@ -12,21 +11,17 @@ namespace Selkie.Services.Aco.Specflow.Steps.Common
     {
         public void SubscribeOther()
         {
-            m_Bus.SubscribeHandlerAsync <CreatedColonyMessage>(m_Logger,
-                                                               GetType().FullName,
-                                                               CreatedColonyHandler);
+            m_Bus.SubscribeAsync <CreatedColonyMessage>(GetType().FullName,
+                                                        CreatedColonyHandler);
 
-            m_Bus.SubscribeHandlerAsync <StartedMessage>(m_Logger,
-                                                         GetType().FullName,
-                                                         StartedHandler);
+            m_Bus.SubscribeAsync <StartedMessage>(GetType().FullName,
+                                                  StartedHandler);
 
-            m_Bus.SubscribeHandlerAsync <BestTrailMessage>(m_Logger,
-                                                           GetType().FullName,
-                                                           BestTrailHandler);
+            m_Bus.SubscribeAsync <BestTrailMessage>(GetType().FullName,
+                                                    BestTrailHandler);
 
-            m_Bus.SubscribeHandlerAsync <FinishedMessage>(m_Logger,
-                                                          GetType().FullName,
-                                                          FinishedHandler);
+            m_Bus.SubscribeAsync <FinishedMessage>(GetType().FullName,
+                                                   FinishedHandler);
         }
 
         private void BestTrailHandler(BestTrailMessage message)

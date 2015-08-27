@@ -1,10 +1,10 @@
 using System;
-using EasyNetQ;
 using JetBrains.Annotations;
 using Selkie.Aco.Anthill;
 using Selkie.Aco.Anthill.TypedFactories;
 using Selkie.Aco.Common;
 using Selkie.Common;
+using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
 using Selkie.Windsor;
 
@@ -15,12 +15,12 @@ namespace Selkie.Services.Aco
         : IServiceColony,
           IDisposable
     {
-        private readonly IBus m_Bus;
+        private readonly ISelkieBus m_Bus;
         private readonly IColony m_Colony;
         private readonly IDisposer m_Disposer;
 
         public ServiceColony([NotNull] IDisposer disposer,
-                             [NotNull] IBus bus,
+                             [NotNull] ISelkieBus bus,
                              [NotNull] IColonyFactory colonyFactory,
                              [NotNull] IDistanceGraphFactory graphFactory,
                              [NotNull] IServiceColonyParameters parameters)
@@ -128,7 +128,7 @@ namespace Selkie.Services.Aco
 
             m_Bus.PublishAsync(message);
 
-            IsRunning = false; // todo testing
+            IsRunning = false;
         }
 
         internal void OnFinished(object sender,
@@ -143,7 +143,7 @@ namespace Selkie.Services.Aco
 
             m_Bus.PublishAsync(message);
 
-            IsRunning = false; // todo testing
+            IsRunning = false;
         }
 
         internal void OnBestTrailChanged(object sender,

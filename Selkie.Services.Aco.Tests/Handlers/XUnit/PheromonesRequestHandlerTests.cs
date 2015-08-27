@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using EasyNetQ;
 using JetBrains.Annotations;
 using NSubstitute;
 using Ploeh.AutoFixture.Xunit;
+using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
 using Selkie.Services.Aco.Handlers;
 using Selkie.XUnit.Extensions;
@@ -20,7 +20,7 @@ namespace Selkie.Services.Aco.Tests.Handlers.XUnit
         [Theory]
         [AutoNSubstituteData]
         public void HandleSendsReplyTest([NotNull] [Frozen] IServiceColony colony,
-                                         [NotNull] [Frozen] IBus bus,
+                                         [NotNull] [Frozen] ISelkieBus bus,
                                          [NotNull] PheromonesRequestHandler sut)
         {
             // Arrange

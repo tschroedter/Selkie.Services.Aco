@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using EasyNetQ;
 using JetBrains.Annotations;
 using NSubstitute;
 using Ploeh.AutoFixture.Xunit;
@@ -8,6 +7,7 @@ using Selkie.Aco.Anthill;
 using Selkie.Aco.Anthill.TypedFactories;
 using Selkie.Aco.Common;
 using Selkie.Common;
+using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
 using Selkie.XUnit.Extensions;
 using Xunit;
@@ -35,7 +35,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
         private static ServiceColony CreateSut()
         {
             return new ServiceColony(Substitute.For <IDisposer>(),
-                                     Substitute.For <IBus>(),
+                                     Substitute.For <ISelkieBus>(),
                                      Substitute.For <IColonyFactory>(),
                                      Substitute.For <IDistanceGraphFactory>(),
                                      Substitute.For <IServiceColonyParameters>());
@@ -51,7 +51,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
             // Act
             var sut = new ServiceColony(Substitute.For <IDisposer>(),
-                                        Substitute.For <IBus>(),
+                                        Substitute.For <ISelkieBus>(),
                                         factory,
                                         Substitute.For <IDistanceGraphFactory>(),
                                         Substitute.For <IServiceColonyParameters>());
@@ -62,7 +62,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
         [Theory]
         [AutoNSubstituteData]
-        public void OnBestTrailChangedSendsMessageTest([NotNull] IBus bus,
+        public void OnBestTrailChangedSendsMessageTest([NotNull] ISelkieBus bus,
                                                        [NotNull] BestTrailChangedEventArgs eventArgs)
         {
             // Arrange
@@ -79,7 +79,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
         [Theory]
         [AutoNSubstituteData]
-        public void OnStoppedSendsMessageTest([NotNull] IBus bus,
+        public void OnStoppedSendsMessageTest([NotNull] ISelkieBus bus,
                                               [NotNull] EventArgs eventArgs)
         {
             // Arrange
@@ -95,7 +95,49 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
         [Theory]
         [AutoNSubstituteData]
-        public void OnStartedSendsMessageTest([NotNull] IBus bus,
+        public void OnStoppedSetsIsRunningToFalseTest([NotNull] ISelkieBus bus,
+                                                      [NotNull] EventArgs eventArgs)
+        {
+            // Arrange
+            ServiceColony sut = CreateSutGivenBus(bus);
+            SetIsRunningToTrue(sut);
+
+            // Act
+            sut.OnStopped(this,
+                          eventArgs);
+
+            // Assert
+            Assert.False(sut.IsRunning);
+        }
+
+        private void SetIsRunningToTrue(ServiceColony sut)
+        {
+            sut.OnStarted(this,
+                          new EventArgs());
+
+            Assert.True(sut.IsRunning);
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void OnFinishedSetsIsRunningToFalseTest([NotNull] ISelkieBus bus,
+                                                       [NotNull] EventArgs eventArgs)
+        {
+            // Arrange
+            ServiceColony sut = CreateSutGivenBus(bus);
+            SetIsRunningToTrue(sut);
+
+            // Act
+            sut.OnFinished(this,
+                           new FinishedEventArgs());
+
+            // Assert
+            Assert.False(sut.IsRunning);
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void OnStartedSendsMessageTest([NotNull] ISelkieBus bus,
                                               [NotNull] EventArgs eventArgs)
         {
             // Arrange
@@ -136,7 +178,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
         [Theory]
         [AutoNSubstituteData]
-        public void OnFinishedChangedSendsMessageTest([NotNull] IBus bus,
+        public void OnFinishedChangedSendsMessageTest([NotNull] ISelkieBus bus,
                                                       [NotNull] FinishedEventArgs eventArgs)
         {
             // Arrange
@@ -158,7 +200,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
                    x.Times == eventArgs.Times;
         }
 
-        private static ServiceColony CreateSutGivenBus([NotNull] IBus bus)
+        private static ServiceColony CreateSutGivenBus([NotNull] ISelkieBus bus)
         {
             return new ServiceColony(Substitute.For <IDisposer>(),
                                      bus,
@@ -174,7 +216,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
             var disposer = Substitute.For <IDisposer>();
 
             var sut = new ServiceColony(disposer,
-                                        Substitute.For <IBus>(),
+                                        Substitute.For <ISelkieBus>(),
                                         Substitute.For <IColonyFactory>(),
                                         Substitute.For <IDistanceGraphFactory>(),
                                         Substitute.For <IServiceColonyParameters>());
@@ -194,7 +236,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
             disposer.IsDisposed.Returns(true);
 
             var sut = new ServiceColony(disposer,
-                                        Substitute.For <IBus>(),
+                                        Substitute.For <ISelkieBus>(),
                                         Substitute.For <IColonyFactory>(),
                                         Substitute.For <IDistanceGraphFactory>(),
                                         Substitute.For <IServiceColonyParameters>());

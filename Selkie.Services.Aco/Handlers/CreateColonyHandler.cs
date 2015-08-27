@@ -1,26 +1,23 @@
-﻿using Castle.Core.Logging;
-using EasyNetQ;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
-using Selkie.Windsor;
 
 namespace Selkie.Services.Aco.Handlers
 {
-    [ProjectComponent(Lifestyle.Startable)]
     public class CreateColonyHandler
-        : BaseHandler <CreateColonyMessage>,
-          ICreateColonyHandler
+        : SelkieMessageHandler <CreateColonyMessage>
     {
-        public CreateColonyHandler([NotNull] ILogger logger,
-                                   [NotNull] IBus bus,
+        private readonly ISelkieBus m_Bus;
+        private readonly IColonySourceManager m_Manager;
+
+        public CreateColonyHandler([NotNull] ISelkieBus bus,
                                    [NotNull] IColonySourceManager manager)
-            : base(logger,
-                   bus,
-                   manager)
         {
+            m_Bus = bus;
+            m_Manager = manager;
         }
 
-        internal override void Handle(CreateColonyMessage message)
+        public override void Handle(CreateColonyMessage message)
         {
             var parameters = new ServiceColonyParameters
                              {
@@ -28,11 +25,11 @@ namespace Selkie.Services.Aco.Handlers
                                  CostPerLine = message.CostPerLine
                              };
 
-            IServiceColony colony = Manager.CreateColony(parameters);
+            IServiceColony colony = m_Manager.CreateColony(parameters);
 
-            Manager.UpdateSource(colony);
+            m_Manager.UpdateSource(colony);
 
-            Bus.PublishAsync(new CreatedColonyMessage());
+            m_Bus.PublishAsync(new CreatedColonyMessage());
         }
     }
 }

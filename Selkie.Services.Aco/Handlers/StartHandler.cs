@@ -1,28 +1,22 @@
-﻿using Castle.Core.Logging;
-using EasyNetQ;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
-using Selkie.Windsor;
 
 namespace Selkie.Services.Aco.Handlers
 {
-    [ProjectComponent(Lifestyle.Startable)]
     public sealed class StartHandler
-        : BaseHandler <StartMessage>,
-          IStartHandler
+        : SelkieMessageHandler <StartMessage>
     {
-        public StartHandler([NotNull] ILogger logger,
-                            [NotNull] IBus bus,
-                            [NotNull] IColonySourceManager manager)
-            : base(logger,
-                   bus,
-                   manager)
+        private readonly IColonySourceManager m_Manager;
+
+        public StartHandler([NotNull] IColonySourceManager manager)
         {
+            m_Manager = manager;
         }
 
-        internal override void Handle(StartMessage message)
+        public override void Handle(StartMessage message)
         {
-            Manager.Source.Start(message.Times);
+            m_Manager.Source.Start(message.Times);
         }
     }
 }

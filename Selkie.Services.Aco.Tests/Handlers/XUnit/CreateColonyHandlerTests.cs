@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Castle.Core.Logging;
-using EasyNetQ;
 using NSubstitute;
+using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
 using Selkie.Services.Aco.Handlers;
 using Xunit;
@@ -18,8 +17,7 @@ namespace Selkie.Services.Aco.Tests.Handlers.XUnit
             // Arrange
             var manager = Substitute.For <IColonySourceManager>();
 
-            var sut = new CreateColonyHandler(Substitute.For <ILogger>(),
-                                              Substitute.For <IBus>(),
+            var sut = new CreateColonyHandler(Substitute.For <ISelkieBus>(),
                                               manager);
 
             // Act
@@ -60,10 +58,9 @@ namespace Selkie.Services.Aco.Tests.Handlers.XUnit
         public void HandleSendsMessageTest()
         {
             // Arrange
-            var bus = Substitute.For <IBus>();
+            var bus = Substitute.For <ISelkieBus>();
 
-            var sut = new CreateColonyHandler(Substitute.For <ILogger>(),
-                                              bus,
+            var sut = new CreateColonyHandler(bus,
                                               Substitute.For <IColonySourceManager>());
 
             // Act

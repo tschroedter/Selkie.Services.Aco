@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using EasyNetQ;
 using JetBrains.Annotations;
 using NSubstitute;
 using Ploeh.AutoFixture.Xunit;
+using Selkie.EasyNetQ;
 using Selkie.Services.Common.Messages;
 using Selkie.XUnit.Extensions;
 using Xunit.Extensions;
@@ -15,7 +15,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
     {
         [Theory]
         [AutoNSubstituteData]
-        public void ServiceStartSendsMessageTest([NotNull] [Frozen] IBus bus,
+        public void ServiceStartSendsMessageTest([NotNull] [Frozen] ISelkieBus bus,
                                                  [NotNull] AcoService sut)
         {
             // Arrange
@@ -28,7 +28,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
         [Theory]
         [AutoNSubstituteData]
-        public void ServiceStopSendsMessageTest([NotNull] [Frozen] IBus bus,
+        public void ServiceStopSendsMessageTest([NotNull] [Frozen] ISelkieBus bus,
                                                 [NotNull] AcoService sut)
         {
             // Arrange

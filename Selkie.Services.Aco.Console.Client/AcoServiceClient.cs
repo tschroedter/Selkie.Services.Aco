@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
-using Castle.Core.Logging;
-using EasyNetQ;
 using JetBrains.Annotations;
-using Selkie.EasyNetQ.Extensions;
+using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
 using Selkie.Services.Common;
 using Selkie.Windsor.Extensions;
@@ -16,7 +14,7 @@ namespace Selkie.Services.Aco.Console.Client
     public class AcoServiceClient : IAcoServiceClient
     {
         private const int SleepTimeOneSecond = 1000;
-        private readonly IBus m_Bus;
+        private readonly ISelkieBus m_Bus;
         private readonly ISelkieConsole m_Console;
 
         private readonly int[][] m_CostMatrix =
@@ -63,28 +61,23 @@ namespace Selkie.Services.Aco.Console.Client
         private bool m_IsReceivedFinishedMessage;
         private bool m_IsReceivedStartedyMessage;
 
-        public AcoServiceClient([NotNull] IBus bus,
-                                [NotNull] ILogger logger,
+        public AcoServiceClient([NotNull] ISelkieBus bus,
                                 [NotNull] ISelkieConsole console)
         {
             m_Bus = bus;
             m_Console = console;
 
-            m_Bus.SubscribeHandlerAsync <CreatedColonyMessage>(logger,
-                                                               GetType().ToString(),
-                                                               CreatedColonyHandler);
+            m_Bus.SubscribeAsync <CreatedColonyMessage>(GetType().ToString(),
+                                                        CreatedColonyHandler);
 
-            m_Bus.SubscribeHandlerAsync <StartedMessage>(logger,
-                                                         GetType().ToString(),
-                                                         StartedHandler);
+            m_Bus.SubscribeAsync <StartedMessage>(GetType().ToString(),
+                                                  StartedHandler);
 
-            m_Bus.SubscribeHandlerAsync <BestTrailMessage>(logger,
-                                                           GetType().ToString(),
-                                                           BestTrailHandler);
+            m_Bus.SubscribeAsync <BestTrailMessage>(GetType().ToString(),
+                                                    BestTrailHandler);
 
-            m_Bus.SubscribeHandlerAsync <FinishedMessage>(logger,
-                                                          GetType().ToString(),
-                                                          FinishedHandler);
+            m_Bus.SubscribeAsync <FinishedMessage>(GetType().ToString(),
+                                                   FinishedHandler);
         }
 
         public void CreateColony()
