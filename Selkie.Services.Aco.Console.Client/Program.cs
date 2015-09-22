@@ -52,6 +52,7 @@ namespace Selkie.Services.Aco.Console.Client
             client.CreateColony();
             client.StartColony();
             client.WaitForFinishColony();
+            client.ForceException();
         }
     }
 }

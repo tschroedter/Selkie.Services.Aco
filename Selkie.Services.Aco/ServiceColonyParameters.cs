@@ -1,7 +1,10 @@
+using Castle.Core;
+using Selkie.Aop.Aspects;
 using Selkie.Windsor;
 
 namespace Selkie.Services.Aco
 {
+    [Interceptor(typeof(MessageHandlerAspect))]
     [ProjectComponent(Lifestyle.Transient)]
     public class ServiceColonyParameters : IServiceColonyParameters
     {

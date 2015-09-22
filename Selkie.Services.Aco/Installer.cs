@@ -14,6 +14,11 @@ namespace Selkie.Services.Aco
     //ncrunch: no coverage start
     public class Installer : BaseInstaller <Installer>
     {
+        public override string GetPrefixOfDllsToInstall()
+        {
+            return "Selkie.";
+        }
+
         // ReSharper disable once CodeAnnotationAnalyzer
         protected override void InstallComponents(IWindsorContainer container,
                                                   IConfigurationStore store)

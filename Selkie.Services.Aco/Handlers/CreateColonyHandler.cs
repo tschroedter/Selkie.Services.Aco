@@ -1,9 +1,12 @@
-﻿using JetBrains.Annotations;
+﻿using Castle.Core;
+using JetBrains.Annotations;
+using Selkie.Aop.Aspects;
 using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
 
 namespace Selkie.Services.Aco.Handlers
 {
+    [Interceptor(typeof(MessageHandlerAspect))]
     public class CreateColonyHandler
         : SelkieMessageHandler <CreateColonyMessage>
     {

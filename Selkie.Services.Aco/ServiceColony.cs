@@ -1,8 +1,10 @@
 using System;
+using Castle.Core;
 using JetBrains.Annotations;
 using Selkie.Aco.Anthill;
 using Selkie.Aco.Anthill.TypedFactories;
 using Selkie.Aco.Common;
+using Selkie.Aop.Aspects;
 using Selkie.Common;
 using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
@@ -10,6 +12,7 @@ using Selkie.Windsor;
 
 namespace Selkie.Services.Aco
 {
+    [Interceptor(typeof(MessageHandlerAspect))]
     [ProjectComponent(Lifestyle.Transient)]
     public sealed class ServiceColony
         : IServiceColony,

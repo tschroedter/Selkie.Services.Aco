@@ -10,5 +10,9 @@ namespace Selkie.Services.Aco.Specflow
         : BasicConsoleInstaller,
           IWindsorInstaller
     {
+        public override string GetPrefixOfDllsToInstall()
+        {
+            return "Selkie.";
+        }
     }
 }

@@ -1,9 +1,12 @@
-﻿using JetBrains.Annotations;
+﻿using Castle.Core;
+using JetBrains.Annotations;
+using Selkie.Aop.Aspects;
 using Selkie.Services.Aco.TypedFactories;
 using Selkie.Windsor;
 
 namespace Selkie.Services.Aco
 {
+    [Interceptor(typeof(MessageHandlerAspect))]
     [ProjectComponent(Lifestyle.Singleton)]
     public class ColonySourceManager : IColonySourceManager
     {

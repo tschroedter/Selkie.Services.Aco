@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Threading;
 using JetBrains.Annotations;
+using Selkie.Aop.Messages;
 using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
 using Selkie.Services.Common;
@@ -67,17 +69,22 @@ namespace Selkie.Services.Aco.Console.Client
             m_Bus = bus;
             m_Console = console;
 
-            m_Bus.SubscribeAsync <CreatedColonyMessage>(GetType().ToString(),
+            string subscriptionId = GetType().ToString();
+
+            m_Bus.SubscribeAsync <CreatedColonyMessage>(subscriptionId,
                                                         CreatedColonyHandler);
 
-            m_Bus.SubscribeAsync <StartedMessage>(GetType().ToString(),
+            m_Bus.SubscribeAsync <StartedMessage>(subscriptionId,
                                                   StartedHandler);
 
-            m_Bus.SubscribeAsync <BestTrailMessage>(GetType().ToString(),
+            m_Bus.SubscribeAsync <BestTrailMessage>(subscriptionId,
                                                     BestTrailHandler);
 
-            m_Bus.SubscribeAsync <FinishedMessage>(GetType().ToString(),
+            m_Bus.SubscribeAsync <FinishedMessage>(subscriptionId,
                                                    FinishedHandler);
+
+            m_Bus.SubscribeAsync <ExceptionThrownMessage>(subscriptionId,
+                                                          ExceptionThrownHandler);
         }
 
         public void CreateColony()
@@ -189,10 +196,47 @@ namespace Selkie.Services.Aco.Console.Client
         {
             m_Console.WriteLine("Received {0}...".Inject(message.GetType().Name));
         }
-    }
 
-    public interface IAcoServiceClient
-    {
-        void CreateColony();
+        private void ExceptionThrownHandler(ExceptionThrownMessage message)
+        {
+            m_Console.WriteLine(MessageToText(message)); // todo write a ExceptionThrownMessage handler in WPF solution
+        }
+
+        private string MessageToText(ExceptionThrownMessage message)
+        {
+            var builder = new StringBuilder();
+
+            builder.AppendLine("Invocation: {0}".Inject(message.Invocation));
+            builder.AppendLine("Message: {0}".Inject(message.Message));
+            builder.AppendLine("StackTrace: {0}".Inject(message.StackTrace));
+
+            return builder.ToString();
+        }
+
+        public void ForceException()
+        {
+            m_Console.WriteLine("ForceException <CreateColonyMessage>...");
+
+            var request = new CreateColonyMessage
+                          {
+                              CostMatrix = new[]
+                                           {
+                                               new[]
+                                               {
+                                                   1,
+                                                   2
+                                               }
+                                           },
+                              CostPerLine = new[]
+                                            {
+                                                1,
+                                                2,
+                                                3,
+                                                4
+                                            }
+                          };
+
+            m_Bus.Publish(request);
+        }
     }
 }

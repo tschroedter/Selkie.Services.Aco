@@ -1,10 +1,13 @@
-﻿using JetBrains.Annotations;
+﻿using Castle.Core;
+using JetBrains.Annotations;
+using Selkie.Aop.Aspects;
 using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
 
 namespace Selkie.Services.Aco.Handlers
 {
-    public sealed class StartHandler
+    [Interceptor(typeof(MessageHandlerAspect))]
+    public class StartHandler
         : SelkieMessageHandler <StartMessage>
     {
         private readonly IColonySourceManager m_Manager;
