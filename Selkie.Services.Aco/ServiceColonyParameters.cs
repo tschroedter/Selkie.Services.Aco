@@ -4,7 +4,7 @@ using Selkie.Windsor;
 
 namespace Selkie.Services.Aco
 {
-    [Interceptor(typeof(MessageHandlerAspect))]
+    [Interceptor(typeof ( MessageHandlerAspect ))]
     [ProjectComponent(Lifestyle.Transient)]
     public class ServiceColonyParameters : IServiceColonyParameters
     {

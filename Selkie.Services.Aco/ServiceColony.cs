@@ -12,7 +12,7 @@ using Selkie.Windsor;
 
 namespace Selkie.Services.Aco
 {
-    [Interceptor(typeof(MessageHandlerAspect))]
+    [Interceptor(typeof ( MessageHandlerAspect ))]
     [ProjectComponent(Lifestyle.Transient)]
     public sealed class ServiceColony
         : IServiceColony,

@@ -6,7 +6,7 @@ using Selkie.Services.Aco.Common.Messages;
 
 namespace Selkie.Services.Aco.Handlers
 {
-    [Interceptor(typeof(MessageHandlerAspect))]
+    [Interceptor(typeof ( MessageHandlerAspect ))]
     public class StopRequestHandler
         : SelkieMessageHandler <StopRequestMessage>
     {

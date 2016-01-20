@@ -6,7 +6,7 @@ using Selkie.Windsor;
 
 namespace Selkie.Services.Aco
 {
-    [Interceptor(typeof(MessageHandlerAspect))]
+    [Interceptor(typeof ( MessageHandlerAspect ))]
     [ProjectComponent(Lifestyle.Singleton)]
     public class ColonySourceManager : IColonySourceManager
     {

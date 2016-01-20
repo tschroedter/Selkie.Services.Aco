@@ -94,8 +94,8 @@
       <HintPath>..\packages\Selkie.Aop.0.6.5.0\lib\net45\Selkie.Aop.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Selkie.Common, Version=0.6.190.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selkie.Common.0.6.190.0\lib\net45\Selkie.Common.dll</HintPath>
+    <Reference Include="Selkie.Common, Version=0.6.192.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selkie.Common.0.6.192.0\lib\net45\Selkie.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Selkie.EasyNetQ, Version=0.6.185.0, Culture=neutral, processorArchitecture=MSIL">

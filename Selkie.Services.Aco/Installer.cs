@@ -4,21 +4,16 @@ using Castle.Core;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
+using Selkie.Common;
 using Selkie.EasyNetQ;
 using Selkie.Services.Common;
-using Selkie.Windsor;
 
 namespace Selkie.Services.Aco
 {
     [ExcludeFromCodeCoverage]
     //ncrunch: no coverage start
-    public class Installer : BaseInstaller <Installer>
+    public class Installer : SelkieInstaller <Installer>
     {
-        public override string GetPrefixOfDllsToInstall()
-        {
-            return "Selkie.";
-        }
-
         // ReSharper disable once CodeAnnotationAnalyzer
         protected override void InstallComponents(IWindsorContainer container,
                                                   IConfigurationStore store)
