@@ -53,9 +53,9 @@ namespace Selkie.Services.Aco.Console.Client
 
         private readonly int[] m_CostPerLine =
         {
+            1000,
             1,
-            1,
-            1,
+            1000,
             1
         };
 
