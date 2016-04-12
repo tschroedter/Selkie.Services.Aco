@@ -1,5 +1,6 @@
 ﻿using Castle.Core;
 using JetBrains.Annotations;
+using Selkie.Aco.Anthill;
 using Selkie.Aop.Aspects;
 using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
@@ -22,10 +23,15 @@ namespace Selkie.Services.Aco.Handlers
 
         public override void Handle(CreateColonyMessage message)
         {
+            AntSettings.TrailStartNodeType trailStartNodeType = message.IsFixedStartNode
+                                                                    ? AntSettings.TrailStartNodeType.Fixed
+                                                                    : AntSettings.TrailStartNodeType.Random;
             var parameters = new ServiceColonyParameters
                              {
                                  CostMatrix = message.CostMatrix,
-                                 CostPerLine = message.CostPerLine
+                                 CostPerLine = message.CostPerLine,
+                                 IsFixedStartNode = trailStartNodeType,
+                                 FixedStartNode = message.FixedStartNode
                              };
 
             IServiceColony colony = m_Manager.CreateColony(parameters);

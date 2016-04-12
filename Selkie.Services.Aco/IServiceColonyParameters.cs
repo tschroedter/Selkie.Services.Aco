@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Selkie.Aco.Anthill;
 
 namespace Selkie.Services.Aco
 {
@@ -9,5 +10,9 @@ namespace Selkie.Services.Aco
 
         [NotNull]
         int[] CostPerLine { get; set; }
+
+        AntSettings.TrailStartNodeType IsFixedStartNode { get; set; }
+
+        int FixedStartNode { get; set; }
     }
 }

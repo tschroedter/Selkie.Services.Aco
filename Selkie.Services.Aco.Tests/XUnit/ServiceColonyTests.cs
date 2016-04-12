@@ -34,11 +34,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
         private static ServiceColony CreateSut()
         {
-            return new ServiceColony(Substitute.For <IDisposer>(),
-                                     Substitute.For <ISelkieBus>(),
-                                     Substitute.For <IColonyFactory>(),
-                                     Substitute.For <IDistanceGraphFactory>(),
-                                     Substitute.For <IServiceColonyParameters>());
+            return CreateSut(Substitute.For <IDisposer>());
         }
 
         [Fact]
@@ -47,13 +43,16 @@ namespace Selkie.Services.Aco.Tests.XUnit
             // Arrange
             var colony = Substitute.For <IColony>();
             var factory = Substitute.For <IColonyFactory>();
-            factory.Create(Arg.Any <IDistanceGraph>()).Returns(colony);
+
+            factory.Create(Arg.Any <IDistanceGraph>(),
+                           Arg.Any <IAntSettings>()).Returns(colony);
 
             // Act
             var sut = new ServiceColony(Substitute.For <IDisposer>(),
                                         Substitute.For <ISelkieBus>(),
                                         factory,
                                         Substitute.For <IDistanceGraphFactory>(),
+                                        Substitute.For <IAntSettingsFactory>(),
                                         Substitute.For <IServiceColonyParameters>());
 
             // Assert
@@ -206,6 +205,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
                                      bus,
                                      Substitute.For <IColonyFactory>(),
                                      Substitute.For <IDistanceGraphFactory>(),
+                                     Substitute.For <IAntSettingsFactory>(),
                                      Substitute.For <IServiceColonyParameters>());
         }
 
@@ -215,11 +215,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
             // Arrange
             var disposer = Substitute.For <IDisposer>();
 
-            var sut = new ServiceColony(disposer,
-                                        Substitute.For <ISelkieBus>(),
-                                        Substitute.For <IColonyFactory>(),
-                                        Substitute.For <IDistanceGraphFactory>(),
-                                        Substitute.For <IServiceColonyParameters>());
+            ServiceColony sut = CreateSut(disposer);
 
             // Act
             sut.Dispose();
@@ -235,17 +231,24 @@ namespace Selkie.Services.Aco.Tests.XUnit
             var disposer = Substitute.For <IDisposer>();
             disposer.IsDisposed.Returns(true);
 
-            var sut = new ServiceColony(disposer,
-                                        Substitute.For <ISelkieBus>(),
-                                        Substitute.For <IColonyFactory>(),
-                                        Substitute.For <IDistanceGraphFactory>(),
-                                        Substitute.For <IServiceColonyParameters>());
+            ServiceColony sut = CreateSut(disposer);
 
             // Act
             sut.Dispose();
 
             // Assert
             disposer.DidNotReceive().Dispose();
+        }
+
+        private static ServiceColony CreateSut(IDisposer disposer)
+        {
+            var sut = new ServiceColony(disposer,
+                                        Substitute.For <ISelkieBus>(),
+                                        Substitute.For <IColonyFactory>(),
+                                        Substitute.For <IDistanceGraphFactory>(),
+                                        Substitute.For <IAntSettingsFactory>(),
+                                        Substitute.For <IServiceColonyParameters>());
+            return sut;
         }
 
         [Theory]
@@ -340,6 +343,33 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
             // Assert
             colony.Received().Start(1);
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void ConstructorCallsAntSettingsFactoryTest([NotNull] [Frozen] IAntSettingsFactory factory,
+                                                           [NotNull] [Frozen] IServiceColonyParameters parameters,
+                                                           [NotNull] ServiceColony sut)
+        {
+            // Arrange
+            // Act
+            // Assert
+            factory.Received().Create(parameters.IsFixedStartNode,
+                                      parameters.FixedStartNode);
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void ConstructorCallsColonyFactoryTest([NotNull] [Frozen] IColonyFactory factory,
+                                                      [NotNull] [Frozen] IDistanceGraph graph,
+                                                      [NotNull] [Frozen] IAntSettings antSettings,
+                                                      [NotNull] ServiceColony sut)
+        {
+            // Arrange
+            // Act
+            // Assert
+            factory.Received().Create(graph,
+                                      antSettings);
         }
     }
 }

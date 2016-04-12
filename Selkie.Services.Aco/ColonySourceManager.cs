@@ -31,9 +31,9 @@ namespace Selkie.Services.Aco
 
         public IServiceColony CreateColony(IServiceColonyParameters parameters)
         {
-            IServiceColony adapter = m_Factory.Create(parameters);
+            IServiceColony colony = m_Factory.Create(parameters);
 
-            return adapter;
+            return colony;
         }
     }
 }

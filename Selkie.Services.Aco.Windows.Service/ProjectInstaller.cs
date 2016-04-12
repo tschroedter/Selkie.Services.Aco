@@ -18,15 +18,14 @@ namespace Selkie.Services.Aco.Windows.Service
         {
             InitializeComponent();
 
-            var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            var version = string.Format("{0}.{1}.{2}",
-                                        assemblyVersion.Major,
-                                        assemblyVersion.Minor,
-                                        assemblyVersion.Build);
+            Version assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            string version = string.Format("{0}.{1}.{2}",
+                                           assemblyVersion.Major,
+                                           assemblyVersion.Minor,
+                                           assemblyVersion.Build);
 
             serviceInstaller1.DisplayName += " " + version;
             serviceInstaller1.ServiceName += " " + version;
-
         }
 
         private void serviceProcessInstaller1_AfterInstall(object sender,

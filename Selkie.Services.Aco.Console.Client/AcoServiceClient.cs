@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using System.Threading;
 using JetBrains.Annotations;
 using Selkie.Aop.Messages;
@@ -18,6 +17,7 @@ namespace Selkie.Services.Aco.Console.Client
         private const int SleepTimeOneSecond = 1000;
         private readonly ISelkieBus m_Bus;
         private readonly ISelkieConsole m_Console;
+        private readonly IExceptionThrownMessageToStringConverter m_Converter;
 
         private readonly int[][] m_CostMatrix =
         {
@@ -64,10 +64,12 @@ namespace Selkie.Services.Aco.Console.Client
         private bool m_IsReceivedStartedyMessage;
 
         public AcoServiceClient([NotNull] ISelkieBus bus,
-                                [NotNull] ISelkieConsole console)
+                                [NotNull] ISelkieConsole console,
+                                [NotNull] IExceptionThrownMessageToStringConverter converter)
         {
             m_Bus = bus;
             m_Console = console;
+            m_Converter = converter;
 
             string subscriptionId = GetType().ToString();
 
@@ -199,18 +201,9 @@ namespace Selkie.Services.Aco.Console.Client
 
         private void ExceptionThrownHandler(ExceptionThrownMessage message)
         {
-            m_Console.WriteLine(MessageToText(message)); // todo write a ExceptionThrownMessage handler in WPF solution
-        }
+            string text = m_Converter.Convert(message);
 
-        private string MessageToText(ExceptionThrownMessage message)
-        {
-            var builder = new StringBuilder();
-
-            builder.AppendLine("Invocation: {0}".Inject(message.Invocation));
-            builder.AppendLine("Message: {0}".Inject(message.Message));
-            builder.AppendLine("StackTrace: {0}".Inject(message.StackTrace));
-
-            return builder.ToString();
+            m_Console.WriteLine(text);
         }
 
         public void ForceException()

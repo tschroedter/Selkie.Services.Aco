@@ -26,6 +26,7 @@ namespace Selkie.Services.Aco
                              [NotNull] ISelkieBus bus,
                              [NotNull] IColonyFactory colonyFactory,
                              [NotNull] IDistanceGraphFactory graphFactory,
+                             [NotNull] IAntSettingsFactory antSettingsFactory,
                              [NotNull] IServiceColonyParameters parameters)
         {
             m_Disposer = disposer;
@@ -33,7 +34,12 @@ namespace Selkie.Services.Aco
 
             IDistanceGraph graph = graphFactory.Create(parameters.CostMatrix,
                                                        parameters.CostPerLine);
-            IColony colony = colonyFactory.Create(graph);
+
+            IAntSettings antSettings = antSettingsFactory.Create(parameters.IsFixedStartNode,
+                                                                 parameters.FixedStartNode);
+
+            IColony colony = colonyFactory.Create(graph,
+                                                  antSettings);
 
             m_Colony = colony;
 

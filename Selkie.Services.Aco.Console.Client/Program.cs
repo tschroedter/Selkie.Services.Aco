@@ -14,6 +14,7 @@ namespace Selkie.Services.Aco.Console.Client
         private static IServicesManager s_Manager;
         private static ISelkieConsole s_Console;
         private static ISelkieBus s_Bus;
+        private static IExceptionThrownMessageToStringConverter s_Converter;
 
         private static void Main()
         {
@@ -25,6 +26,7 @@ namespace Selkie.Services.Aco.Console.Client
             s_Bus = container.Resolve <ISelkieBus>();
             s_Console = container.Resolve <ISelkieConsole>();
             s_Manager = container.Resolve <IServicesManager>();
+            s_Converter = container.Resolve <IExceptionThrownMessageToStringConverter>();
 
             s_Manager.WaitForAllServices();
 
@@ -47,7 +49,8 @@ namespace Selkie.Services.Aco.Console.Client
         private static void CallService()
         {
             var client = new AcoServiceClient(s_Bus,
-                                              s_Console);
+                                              s_Console,
+                                              s_Converter);
 
             client.CreateColony();
             client.StartColony();
