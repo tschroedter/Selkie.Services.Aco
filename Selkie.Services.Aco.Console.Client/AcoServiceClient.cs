@@ -14,6 +14,32 @@ namespace Selkie.Services.Aco.Console.Client
     //ncrunch: no coverage start
     public class AcoServiceClient : IAcoServiceClient
     {
+        public AcoServiceClient([NotNull] ISelkieBus bus,
+                                [NotNull] ISelkieConsole console,
+                                [NotNull] IExceptionThrownMessageToStringConverter converter)
+        {
+            m_Bus = bus;
+            m_Console = console;
+            m_Converter = converter;
+
+            string subscriptionId = GetType().ToString();
+
+            m_Bus.SubscribeAsync <CreatedColonyMessage>(subscriptionId,
+                                                        CreatedColonyHandler);
+
+            m_Bus.SubscribeAsync <StartedMessage>(subscriptionId,
+                                                  StartedHandler);
+
+            m_Bus.SubscribeAsync <BestTrailMessage>(subscriptionId,
+                                                    BestTrailHandler);
+
+            m_Bus.SubscribeAsync <FinishedMessage>(subscriptionId,
+                                                   FinishedHandler);
+
+            m_Bus.SubscribeAsync <ExceptionThrownMessage>(subscriptionId,
+                                                          ExceptionThrownHandler);
+        }
+
         private const int SleepTimeOneSecond = 1000;
         private readonly ISelkieBus m_Bus;
         private readonly ISelkieConsole m_Console;
@@ -51,7 +77,7 @@ namespace Selkie.Services.Aco.Console.Client
             }
         };
 
-        private readonly int[] m_CostPerLine =
+        private readonly int[] m_CostPerFeature =
         {
             1000,
             1,
@@ -63,32 +89,6 @@ namespace Selkie.Services.Aco.Console.Client
         private bool m_IsReceivedFinishedMessage;
         private bool m_IsReceivedStartedyMessage;
 
-        public AcoServiceClient([NotNull] ISelkieBus bus,
-                                [NotNull] ISelkieConsole console,
-                                [NotNull] IExceptionThrownMessageToStringConverter converter)
-        {
-            m_Bus = bus;
-            m_Console = console;
-            m_Converter = converter;
-
-            string subscriptionId = GetType().ToString();
-
-            m_Bus.SubscribeAsync <CreatedColonyMessage>(subscriptionId,
-                                                        CreatedColonyHandler);
-
-            m_Bus.SubscribeAsync <StartedMessage>(subscriptionId,
-                                                  StartedHandler);
-
-            m_Bus.SubscribeAsync <BestTrailMessage>(subscriptionId,
-                                                    BestTrailHandler);
-
-            m_Bus.SubscribeAsync <FinishedMessage>(subscriptionId,
-                                                   FinishedHandler);
-
-            m_Bus.SubscribeAsync <ExceptionThrownMessage>(subscriptionId,
-                                                          ExceptionThrownHandler);
-        }
-
         public void CreateColony()
         {
             m_Console.WriteLine("Request <CreateColonyMessage>...");
@@ -96,7 +96,7 @@ namespace Selkie.Services.Aco.Console.Client
             var request = new CreateColonyMessage
                           {
                               CostMatrix = m_CostMatrix,
-                              CostPerLine = m_CostPerLine
+                              CostPerFeature = m_CostPerFeature
                           };
 
             m_Bus.Publish(request);
@@ -104,67 +104,30 @@ namespace Selkie.Services.Aco.Console.Client
             WaitForCreatedMessage();
         }
 
-        private void FinishedHandler(FinishedMessage message)
+        public void ForceException()
         {
-            DisplayReceivedMessage(message);
+            m_Console.WriteLine("ForceException <CreateColonyMessage>...");
 
-            m_IsReceivedFinishedMessage = true;
-        }
+            var request = new CreateColonyMessage
+                          {
+                              CostMatrix = new[]
+                                           {
+                                               new[]
+                                               {
+                                                   1,
+                                                   2
+                                               }
+                                           },
+                              CostPerFeature = new[]
+                                               {
+                                                   1,
+                                                   2,
+                                                   3,
+                                                   4
+                                               }
+                          };
 
-        private void BestTrailHandler([NotNull] BestTrailMessage message)
-        {
-            DisplayReceivedMessage(message);
-
-            string trailText = string.Join(",",
-                                           message.Trail);
-
-            m_Console.WriteLine("Iteration {0}: Length = {1} Trail = {2}".Inject(message.Iteration,
-                                                                                 message.Length,
-                                                                                 trailText));
-        }
-
-        private void StartedHandler([NotNull] StartedMessage message)
-        {
-            DisplayReceivedMessage(message);
-
-            m_IsReceivedStartedyMessage = true;
-        }
-
-        private void WaitForCreatedMessage()
-        {
-            SleepWaitAndDo(() => m_IsReceivedCreatedColonyMessage,
-                           () => m_Console.WriteLine("Waiting for response 'CreatedColonyMessage'..."));
-        }
-
-        private void SleepWaitAndDo([NotNull] Func <bool> breakIfTrue,
-                                    [NotNull] Action doSomething)
-        {
-            for ( var i = 0 ; i < 10 ; i++ )
-            {
-                Thread.Sleep(SleepTimeOneSecond);
-
-                if ( breakIfTrue() )
-                {
-                    break;
-                }
-
-                doSomething();
-            }
-        }
-
-        public void WaitForFinishColony()
-        {
-            m_Console.WriteLine("Wait for <FinishMessage>...");
-
-            WaitForFinishMessage();
-
-            m_Console.WriteLine("...received <FinishMessage>!");
-        }
-
-        private void WaitForFinishMessage()
-        {
-            SleepWaitAndDo(() => m_IsReceivedFinishedMessage,
-                           () => m_Console.WriteLine("Waiting for response 'FinishMessage'..."));
+            m_Bus.Publish(request);
         }
 
         public void StartColony()
@@ -181,10 +144,25 @@ namespace Selkie.Services.Aco.Console.Client
             WaitForStartedMessage();
         }
 
-        private void WaitForStartedMessage()
+        public void WaitForFinishColony()
         {
-            SleepWaitAndDo(() => m_IsReceivedStartedyMessage,
-                           () => m_Console.WriteLine("Waiting for response 'StartedMessage'..."));
+            m_Console.WriteLine("Wait for <FinishMessage>...");
+
+            WaitForFinishMessage();
+
+            m_Console.WriteLine("...received <FinishMessage>!");
+        }
+
+        private void BestTrailHandler([NotNull] BestTrailMessage message)
+        {
+            DisplayReceivedMessage(message);
+
+            string trailText = string.Join(",",
+                                           message.Trail);
+
+            m_Console.WriteLine("Iteration {0}: Length = {1} Trail = {2}".Inject(message.Iteration,
+                                                                                 message.Length,
+                                                                                 trailText));
         }
 
         private void CreatedColonyHandler([NotNull] CreatedColonyMessage message)
@@ -206,30 +184,52 @@ namespace Selkie.Services.Aco.Console.Client
             m_Console.WriteLine(text);
         }
 
-        public void ForceException()
+        private void FinishedHandler(FinishedMessage message)
         {
-            m_Console.WriteLine("ForceException <CreateColonyMessage>...");
+            DisplayReceivedMessage(message);
 
-            var request = new CreateColonyMessage
-                          {
-                              CostMatrix = new[]
-                                           {
-                                               new[]
-                                               {
-                                                   1,
-                                                   2
-                                               }
-                                           },
-                              CostPerLine = new[]
-                                            {
-                                                1,
-                                                2,
-                                                3,
-                                                4
-                                            }
-                          };
+            m_IsReceivedFinishedMessage = true;
+        }
 
-            m_Bus.Publish(request);
+        private void SleepWaitAndDo([NotNull] Func <bool> breakIfTrue,
+                                    [NotNull] Action doSomething)
+        {
+            for ( var i = 0 ; i < 10 ; i++ )
+            {
+                Thread.Sleep(SleepTimeOneSecond);
+
+                if ( breakIfTrue() )
+                {
+                    break;
+                }
+
+                doSomething();
+            }
+        }
+
+        private void StartedHandler([NotNull] StartedMessage message)
+        {
+            DisplayReceivedMessage(message);
+
+            m_IsReceivedStartedyMessage = true;
+        }
+
+        private void WaitForCreatedMessage()
+        {
+            SleepWaitAndDo(() => m_IsReceivedCreatedColonyMessage,
+                           () => m_Console.WriteLine("Waiting for response 'CreatedColonyMessage'..."));
+        }
+
+        private void WaitForFinishMessage()
+        {
+            SleepWaitAndDo(() => m_IsReceivedFinishedMessage,
+                           () => m_Console.WriteLine("Waiting for response 'FinishMessage'..."));
+        }
+
+        private void WaitForStartedMessage()
+        {
+            SleepWaitAndDo(() => m_IsReceivedStartedyMessage,
+                           () => m_Console.WriteLine("Waiting for response 'StartedMessage'..."));
         }
     }
 }

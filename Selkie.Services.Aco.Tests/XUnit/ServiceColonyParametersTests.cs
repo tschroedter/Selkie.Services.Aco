@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using NUnit.Framework;
-using Assert = Xunit.Assert;
+using Xunit;
 
 namespace Selkie.Services.Aco.Tests.XUnit
 {
@@ -8,7 +7,7 @@ namespace Selkie.Services.Aco.Tests.XUnit
     //ncrunch: no coverage start
     public class ServiceColonyParametersTests
     {
-        [Theory]
+        [Fact]
         public void CostMatrixRoundtripTest()
         {
             // Arrange
@@ -31,24 +30,24 @@ namespace Selkie.Services.Aco.Tests.XUnit
                          sut.CostMatrix);
         }
 
-        [Theory]
-        public void CostPerLineRoundtripTest()
+        [Fact]
+        public void CostPerFeatureRoundtripTest()
         {
             // Arrange
             var sut = new ServiceColonyParameters();
 
-            int[] costPerLine =
+            int[] costPerFeature =
             {
                 1,
                 2
             };
 
             // Act
-            sut.CostPerLine = costPerLine;
+            sut.CostPerFeature = costPerFeature;
 
             // Assert
-            Assert.Equal(costPerLine,
-                         sut.CostPerLine);
+            Assert.Equal(costPerFeature,
+                         sut.CostPerFeature);
         }
     }
 }

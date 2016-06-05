@@ -6,16 +6,16 @@ using Selkie.Services.Aco.Common.Messages;
 
 namespace Selkie.Services.Aco.Handlers
 {
-    [Interceptor(typeof ( MessageHandlerAspect ))]
+    [Interceptor(typeof( MessageHandlerAspect ))]
     public class StartHandler
         : SelkieMessageHandler <StartMessage>
     {
-        private readonly IColonySourceManager m_Manager;
-
         public StartHandler([NotNull] IColonySourceManager manager)
         {
             m_Manager = manager;
         }
+
+        private readonly IColonySourceManager m_Manager;
 
         public override void Handle(StartMessage message)
         {

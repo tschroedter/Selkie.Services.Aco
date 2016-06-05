@@ -12,7 +12,8 @@ namespace Selkie.Services.Aco
         [NotNull]
         double[][] PheromonesToArray();
 
-        void Stop();
         void Start(int times);
+
+        void Stop();
     }
 }

@@ -6,19 +6,19 @@ using Selkie.Services.Aco.Common.Messages;
 
 namespace Selkie.Services.Aco.Handlers
 {
-    [Interceptor(typeof ( MessageHandlerAspect ))]
+    [Interceptor(typeof( MessageHandlerAspect ))]
     public class PheromonesRequestHandler
         : SelkieMessageHandler <PheromonesRequestMessage>
     {
-        private readonly ISelkieBus m_Bus;
-        private readonly IColonySourceManager m_Manager;
-
         public PheromonesRequestHandler([NotNull] ISelkieBus bus,
                                         [NotNull] IColonySourceManager manager)
         {
             m_Bus = bus;
             m_Manager = manager;
         }
+
+        private readonly ISelkieBus m_Bus;
+        private readonly IColonySourceManager m_Manager;
 
         public override void Handle(PheromonesRequestMessage message)
         {

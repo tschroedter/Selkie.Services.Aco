@@ -6,23 +6,19 @@ using Selkie.Aco.Anthill.Interfaces;
 using Selkie.Aco.Anthill.TypedFactories;
 using Selkie.Aco.Common.Interfaces;
 using Selkie.Aop.Aspects;
-using Selkie.Common;
+using Selkie.Common.Interfaces;
 using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
 using Selkie.Windsor;
 
 namespace Selkie.Services.Aco
 {
-    [Interceptor(typeof ( MessageHandlerAspect ))]
+    [Interceptor(typeof( MessageHandlerAspect ))]
     [ProjectComponent(Lifestyle.Transient)]
     public sealed class ServiceColony
         : IServiceColony,
           IDisposable
     {
-        private readonly ISelkieBus m_Bus;
-        private readonly IColony m_Colony;
-        private readonly IDisposer m_Disposer;
-
         public ServiceColony([NotNull] IDisposer disposer,
                              [NotNull] ISelkieBus bus,
                              [NotNull] IColonyFactory colonyFactory,
@@ -34,7 +30,7 @@ namespace Selkie.Services.Aco
             m_Bus = bus;
 
             IDistanceGraph graph = graphFactory.Create(parameters.CostMatrix,
-                                                       parameters.CostPerLine);
+                                                       parameters.CostPerFeature);
 
             IAntSettings antSettings = antSettingsFactory.Create(parameters.IsFixedStartNode,
                                                                  parameters.FixedStartNode);
@@ -54,6 +50,10 @@ namespace Selkie.Services.Aco
                 return m_Colony;
             }
         }
+
+        private readonly ISelkieBus m_Bus;
+        private readonly IColony m_Colony;
+        private readonly IDisposer m_Disposer;
 
         public void Dispose()
         {
@@ -106,19 +106,36 @@ namespace Selkie.Services.Aco
             m_Colony.Start(times);
         }
 
-        private void RegisterEventHandlers()
+        internal void OnBestTrailChanged(object sender,
+                                         BestTrailChangedEventArgs e)
         {
-            m_Colony.BestTrailChanged += OnBestTrailChanged;
-            m_Disposer.AddResource(() => m_Colony.BestTrailChanged -= OnBestTrailChanged);
+            var message = new BestTrailMessage
+                          {
+                              Alpha = e.Alpha,
+                              Beta = e.Beta,
+                              Gamma = e.Gamma,
+                              Iteration = e.Iteration,
+                              Length = e.Length,
+                              Trail = e.Trail,
+                              Type = e.AntType
+                          };
 
-            m_Colony.Finished += OnFinished;
-            m_Disposer.AddResource(() => m_Colony.Finished -= OnFinished);
+            m_Bus.PublishAsync(message);
+        }
 
-            m_Colony.Stopped += OnStopped;
-            m_Disposer.AddResource(() => m_Colony.Stopped -= OnStopped);
+        internal void OnFinished(object sender,
+                                 FinishedEventArgs e)
+        {
+            var message = new FinishedMessage
+                          {
+                              FinishTime = e.FinishTime,
+                              StartTime = e.StartTime,
+                              Times = e.Times
+                          };
 
-            m_Colony.Started += OnStarted;
-            m_Disposer.AddResource(() => m_Colony.Started -= OnStarted);
+            m_Bus.PublishAsync(message);
+
+            IsRunning = false;
         }
 
         internal void OnStarted(object sender,
@@ -141,36 +158,19 @@ namespace Selkie.Services.Aco
             IsRunning = false;
         }
 
-        internal void OnFinished(object sender,
-                                 FinishedEventArgs e)
+        private void RegisterEventHandlers()
         {
-            var message = new FinishedMessage
-                          {
-                              FinishTime = e.FinishTime,
-                              StartTime = e.StartTime,
-                              Times = e.Times
-                          };
+            m_Colony.BestTrailChanged += OnBestTrailChanged;
+            m_Disposer.AddResource(() => m_Colony.BestTrailChanged -= OnBestTrailChanged);
 
-            m_Bus.PublishAsync(message);
+            m_Colony.Finished += OnFinished;
+            m_Disposer.AddResource(() => m_Colony.Finished -= OnFinished);
 
-            IsRunning = false;
-        }
+            m_Colony.Stopped += OnStopped;
+            m_Disposer.AddResource(() => m_Colony.Stopped -= OnStopped);
 
-        internal void OnBestTrailChanged(object sender,
-                                         BestTrailChangedEventArgs e)
-        {
-            var message = new BestTrailMessage
-                          {
-                              Alpha = e.Alpha,
-                              Beta = e.Beta,
-                              Gamma = e.Gamma,
-                              Iteration = e.Iteration,
-                              Length = e.Length,
-                              Trail = e.Trail,
-                              Type = e.AntType
-                          };
-
-            m_Bus.PublishAsync(message);
+            m_Colony.Started += OnStarted;
+            m_Disposer.AddResource(() => m_Colony.Started -= OnStarted);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Selkie.Services.Aco
         int[][] CostMatrix { get; set; }
 
         [NotNull]
-        int[] CostPerLine { get; set; }
+        int[] CostPerFeature { get; set; }
 
         AntSettings.TrailStartNodeType IsFixedStartNode { get; set; }
 

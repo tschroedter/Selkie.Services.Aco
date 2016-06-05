@@ -24,7 +24,7 @@ namespace Selkie.Services.Aco
             var register = container.Resolve <IRegisterMessageHandlers>();
 
             register.Register(container,
-                              Assembly.GetAssembly(typeof ( Installer )));
+                              Assembly.GetAssembly(typeof( Installer )));
 
             container.Release(register);
 
@@ -32,7 +32,7 @@ namespace Selkie.Services.Aco
             container.Register(
                                Classes.FromThisAssembly()
                                       .BasedOn <IService>()
-                                      .WithServiceFromInterface(typeof ( IService ))
+                                      .WithServiceFromInterface(typeof( IService ))
                                       .Configure(c => c.LifeStyle.Is(LifestyleType.Transient)));
             // ReSharper restore MaximumChainedReferences
         }

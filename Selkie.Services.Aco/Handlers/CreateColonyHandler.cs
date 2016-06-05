@@ -7,19 +7,19 @@ using Selkie.Services.Aco.Common.Messages;
 
 namespace Selkie.Services.Aco.Handlers
 {
-    [Interceptor(typeof ( MessageHandlerAspect ))]
+    [Interceptor(typeof( MessageHandlerAspect ))]
     public class CreateColonyHandler
         : SelkieMessageHandler <CreateColonyMessage>
     {
-        private readonly ISelkieBus m_Bus;
-        private readonly IColonySourceManager m_Manager;
-
         public CreateColonyHandler([NotNull] ISelkieBus bus,
                                    [NotNull] IColonySourceManager manager)
         {
             m_Bus = bus;
             m_Manager = manager;
         }
+
+        private readonly ISelkieBus m_Bus;
+        private readonly IColonySourceManager m_Manager;
 
         public override void Handle(CreateColonyMessage message)
         {
@@ -29,7 +29,7 @@ namespace Selkie.Services.Aco.Handlers
             var parameters = new ServiceColonyParameters
                              {
                                  CostMatrix = message.CostMatrix,
-                                 CostPerLine = message.CostPerLine,
+                                 CostPerFeature = message.CostPerFeature,
                                  IsFixedStartNode = trailStartNodeType,
                                  FixedStartNode = message.FixedStartNode
                              };

@@ -6,19 +6,19 @@ using Selkie.Windsor;
 
 namespace Selkie.Services.Aco
 {
-    [Interceptor(typeof ( MessageHandlerAspect ))]
+    [Interceptor(typeof( MessageHandlerAspect ))]
     [ProjectComponent(Lifestyle.Singleton)]
     public class ColonySourceManager : IColonySourceManager
     {
-        internal const int DefaultRuntime = 1000;
-        private readonly IServiceColonyFactory m_Factory;
-
         public ColonySourceManager([NotNull] IServiceColonyFactory factory,
                                    [NotNull] IServiceColonyParameters parameters)
         {
             m_Factory = factory;
             Source = m_Factory.Create(parameters);
         }
+
+        internal const int DefaultRuntime = 1000;
+        private readonly IServiceColonyFactory m_Factory;
 
         public IServiceColony Source { get; private set; }
 

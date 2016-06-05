@@ -16,6 +16,18 @@ namespace Selkie.Services.Aco.Console.Client
         private static ISelkieBus s_Bus;
         private static IExceptionThrownMessageToStringConverter s_Converter;
 
+        private static void CallService()
+        {
+            var client = new AcoServiceClient(s_Bus,
+                                              s_Console,
+                                              s_Converter);
+
+            client.CreateColony();
+            client.StartColony();
+            client.WaitForFinishColony();
+            client.ForceException();
+        }
+
         private static void Main()
         {
             IWindsorInstaller assembly = FromAssembly.This();
@@ -44,18 +56,6 @@ namespace Selkie.Services.Aco.Console.Client
         {
             s_Console.WriteLine("Stopping services...");
             s_Manager.StopServices();
-        }
-
-        private static void CallService()
-        {
-            var client = new AcoServiceClient(s_Bus,
-                                              s_Console,
-                                              s_Converter);
-
-            client.CreateColony();
-            client.StartColony();
-            client.WaitForFinishColony();
-            client.ForceException();
         }
     }
 }

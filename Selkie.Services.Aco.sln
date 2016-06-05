@@ -19,6 +19,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selkie.Services.Aco.Windows
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Selkie.Services.Aco.Windows.Service.Setup", "Selkie.Services.Aco.Windows.Service.Setup\Selkie.Services.Aco.Windows.Service.Setup.vdproj", "{BE566F60-907F-4D57-A4AE-C9078ABF3367}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0EF7F97B-F043-4F7C-97B8-FFB81BDBE855}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CD_ROM|Any CPU = CD_ROM|Any CPU

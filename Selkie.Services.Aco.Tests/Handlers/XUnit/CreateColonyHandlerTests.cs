@@ -36,11 +36,11 @@ namespace Selkie.Services.Aco.Tests.Handlers.XUnit
                                                    4
                                                }
                                            },
-                              CostPerLine = new[]
-                                            {
-                                                1,
-                                                2
-                                            }
+                              CostPerFeature = new[]
+                                               {
+                                                   1,
+                                                   2
+                                               }
                           };
 
             sut.Handle(message);
@@ -51,7 +51,7 @@ namespace Selkie.Services.Aco.Tests.Handlers.XUnit
                                  Arg.Is <IServiceColonyParameters>(
                                                                    x =>
                                                                    x.CostMatrix == message.CostMatrix &&
-                                                                   x.CostPerLine == message.CostPerLine));
+                                                                   x.CostPerFeature == message.CostPerFeature));
         }
 
         [Fact]

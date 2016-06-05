@@ -11,8 +11,6 @@ namespace Selkie.Services.Aco
         : BaseService,
           IAcoService
     {
-        public const string ServiceName = "Aco Service";
-
         public AcoService([NotNull] ISelkieBus bus,
                           [NotNull] ISelkieLogger logger,
                           [NotNull] ISelkieManagementClient client)
@@ -20,6 +18,12 @@ namespace Selkie.Services.Aco
                    logger,
                    client,
                    ServiceName)
+        {
+        }
+
+        public const string ServiceName = "Aco Service";
+
+        protected override void ServiceInitialize()
         {
         }
 
@@ -41,10 +45,6 @@ namespace Selkie.Services.Aco
                           };
 
             Bus.Publish(message);
-        }
-
-        protected override void ServiceInitialize()
-        {
         }
     }
 }

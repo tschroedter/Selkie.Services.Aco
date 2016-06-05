@@ -38,7 +38,7 @@ namespace Selkie.Services.Aco.Specflow.Steps
             }
         };
 
-        private readonly int[] m_CostPerLine =
+        private readonly int[] m_CostPerFeature =
         {
             1,
             1,
@@ -52,7 +52,7 @@ namespace Selkie.Services.Aco.Specflow.Steps
             var message = new CreateColonyMessage
                           {
                               CostMatrix = m_CostMatrix,
-                              CostPerLine = m_CostPerLine
+                              CostPerFeature = m_CostPerFeature
                           };
 
             Bus.PublishAsync(message);

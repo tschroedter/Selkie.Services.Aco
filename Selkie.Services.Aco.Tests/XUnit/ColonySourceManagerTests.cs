@@ -15,13 +15,6 @@ namespace Selkie.Services.Aco.Tests.XUnit
     {
         [Theory]
         [AutoNSubstituteData]
-        public void SourceDefaultTest([NotNull] ColonySourceManager sut)
-        {
-            Assert.NotNull(sut.Source);
-        }
-
-        [Theory]
-        [AutoNSubstituteData]
         // ReSharper disable once TooManyArguments
         public void CreateColonyTest([NotNull] [Frozen] IServiceColony colony,
                                      [NotNull] IServiceColonyParameters parameters,
@@ -38,16 +31,9 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
         [Theory]
         [AutoNSubstituteData]
-        public void UpdateSourceUpdatesSourceTest([NotNull] IServiceColony colony,
-                                                  [NotNull] ColonySourceManager sut)
+        public void SourceDefaultTest([NotNull] ColonySourceManager sut)
         {
-            // Arrange
-            // Act
-            sut.UpdateSource(colony);
-
-            // Assert
-            Assert.Equal(colony,
-                         sut.Source);
+            Assert.NotNull(sut.Source);
         }
 
         [Theory]
@@ -62,6 +48,20 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
             // Assert
             factory.Received().Release(Arg.Any <IServiceColony>());
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void UpdateSourceUpdatesSourceTest([NotNull] IServiceColony colony,
+                                                  [NotNull] ColonySourceManager sut)
+        {
+            // Arrange
+            // Act
+            sut.UpdateSource(colony);
+
+            // Assert
+            Assert.Equal(colony,
+                         sut.Source);
         }
     }
 }

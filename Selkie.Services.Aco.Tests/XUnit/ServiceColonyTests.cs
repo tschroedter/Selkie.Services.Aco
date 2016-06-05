@@ -7,7 +7,7 @@ using Selkie.Aco.Anthill;
 using Selkie.Aco.Anthill.Interfaces;
 using Selkie.Aco.Anthill.TypedFactories;
 using Selkie.Aco.Common.Interfaces;
-using Selkie.Common;
+using Selkie.Common.Interfaces;
 using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
 using Selkie.XUnit.Extensions;
@@ -21,22 +21,6 @@ namespace Selkie.Services.Aco.Tests.XUnit
     public class ServiceColonyTests
     {
         private const double Tolerance = 0.01;
-
-        [Fact]
-        public void ColonyIsNotNullTest()
-        {
-            // Arrange
-            // Act
-            ServiceColony sut = CreateSut();
-
-            // Assert
-            Assert.NotNull(sut.Colony);
-        }
-
-        private static ServiceColony CreateSut()
-        {
-            return CreateSut(Substitute.For <IDisposer>());
-        }
 
         [Fact]
         public void AdapterSubscribesToBestTrailChangedTest()
@@ -60,6 +44,90 @@ namespace Selkie.Services.Aco.Tests.XUnit
             colony.Received().BestTrailChanged += sut.OnBestTrailChanged;
         }
 
+        [Fact]
+        public void ColonyIsNotNullTest()
+        {
+            // Arrange
+            // Act
+            ServiceColony sut = CreateSut();
+
+            // Assert
+            Assert.NotNull(sut.Colony);
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void ConstructorCallsAntSettingsFactoryTest([NotNull] [Frozen] IAntSettingsFactory factory,
+                                                           [NotNull] [Frozen] IServiceColonyParameters parameters,
+                                                           [NotNull] ServiceColony sut)
+        {
+            // Arrange
+            // Act
+            // Assert
+            factory.Received().Create(parameters.IsFixedStartNode,
+                                      parameters.FixedStartNode);
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void ConstructorCallsColonyFactoryTest([NotNull] [Frozen] IColonyFactory factory,
+                                                      [NotNull] [Frozen] IDistanceGraph graph,
+                                                      [NotNull] [Frozen] IAntSettings antSettings,
+                                                      [NotNull] ServiceColony sut)
+        {
+            // Arrange
+            // Act
+            // Assert
+            factory.Received().Create(graph,
+                                      antSettings);
+        }
+
+        [Fact]
+        public void DisposeCallsDisposeTest()
+        {
+            // Arrange
+            var disposer = Substitute.For <IDisposer>();
+
+            ServiceColony sut = CreateSut(disposer);
+
+            // Act
+            sut.Dispose();
+
+            // Assert
+            disposer.Received().Dispose();
+        }
+
+        [Fact]
+        public void DisposeDoesNotCallsDisposeIfDisposedTest()
+        {
+            // Arrange
+            var disposer = Substitute.For <IDisposer>();
+            disposer.IsDisposed.Returns(true);
+
+            ServiceColony sut = CreateSut(disposer);
+
+            // Act
+            sut.Dispose();
+
+            // Assert
+            disposer.DidNotReceive().Dispose();
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void DPheromonesMinimumTest([NotNull] [Frozen] IColony colony,
+                                           [NotNull] ServiceColony sut)
+        {
+            // Arrange
+            colony.PheromonesMinimum.Returns(123.0);
+
+            // Act
+            double actual = sut.PheromonesMinimum;
+
+            // Assert
+            Assert.True(Math.Abs(123.0 - actual) < Tolerance);
+        }
+
         [Theory]
         [AutoNSubstituteData]
         public void OnBestTrailChangedSendsMessageTest([NotNull] ISelkieBus bus,
@@ -79,43 +147,19 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
         [Theory]
         [AutoNSubstituteData]
-        public void OnStoppedSendsMessageTest([NotNull] ISelkieBus bus,
-                                              [NotNull] EventArgs eventArgs)
+        public void OnFinishedChangedSendsMessageTest([NotNull] ISelkieBus bus,
+                                                      [NotNull] FinishedEventArgs eventArgs)
         {
             // Arrange
             ServiceColony sut = CreateSutGivenBus(bus);
 
             // Act
-            sut.OnStopped(this,
-                          eventArgs);
+            sut.OnFinished(this,
+                           eventArgs);
 
             // Assert
-            bus.PublishAsync(Arg.Any <StoppedMessage>());
-        }
-
-        [Theory]
-        [AutoNSubstituteData]
-        public void OnStoppedSetsIsRunningToFalseTest([NotNull] ISelkieBus bus,
-                                                      [NotNull] EventArgs eventArgs)
-        {
-            // Arrange
-            ServiceColony sut = CreateSutGivenBus(bus);
-            SetIsRunningToTrue(sut);
-
-            // Act
-            sut.OnStopped(this,
-                          eventArgs);
-
-            // Assert
-            Assert.False(sut.IsRunning);
-        }
-
-        private void SetIsRunningToTrue(ServiceColony sut)
-        {
-            sut.OnStarted(this,
-                          new EventArgs());
-
-            Assert.True(sut.IsRunning);
+            bus.PublishAsync(Arg.Is <FinishedMessage>(x => IsMatchFinishedMessage(eventArgs,
+                                                                                  x)));
         }
 
         [Theory]
@@ -166,120 +210,37 @@ namespace Selkie.Services.Aco.Tests.XUnit
             Assert.True(sut.IsRunning);
         }
 
-        private static bool IsMatchBestTrailMessage(BestTrailChangedEventArgs eventArgs,
-                                                    BestTrailMessage x)
-        {
-            // ReSharper disable once PossibleUnintendedReferenceComparison
-            return Math.Abs(x.Alpha - eventArgs.Alpha) < Tolerance && Math.Abs(x.Beta - eventArgs.Beta) < Tolerance &&
-                   Math.Abs(x.Gamma - eventArgs.Gamma) < Tolerance && x.Iteration == eventArgs.Iteration &&
-                   Math.Abs(x.Length - eventArgs.Length) < Tolerance && x.Trail == eventArgs.Trail &&
-                   x.Type == eventArgs.AntType;
-        }
-
         [Theory]
         [AutoNSubstituteData]
-        public void OnFinishedChangedSendsMessageTest([NotNull] ISelkieBus bus,
-                                                      [NotNull] FinishedEventArgs eventArgs)
+        public void OnStoppedSendsMessageTest([NotNull] ISelkieBus bus,
+                                              [NotNull] EventArgs eventArgs)
         {
             // Arrange
             ServiceColony sut = CreateSutGivenBus(bus);
 
             // Act
-            sut.OnFinished(this,
-                           eventArgs);
+            sut.OnStopped(this,
+                          eventArgs);
 
             // Assert
-            bus.PublishAsync(Arg.Is <FinishedMessage>(x => IsMatchFinishedMessage(eventArgs,
-                                                                                  x)));
-        }
-
-        private static bool IsMatchFinishedMessage(FinishedEventArgs eventArgs,
-                                                   FinishedMessage x)
-        {
-            return x.FinishTime == eventArgs.FinishTime && x.StartTime == eventArgs.StartTime &&
-                   x.Times == eventArgs.Times;
-        }
-
-        private static ServiceColony CreateSutGivenBus([NotNull] ISelkieBus bus)
-        {
-            return new ServiceColony(Substitute.For <IDisposer>(),
-                                     bus,
-                                     Substitute.For <IColonyFactory>(),
-                                     Substitute.For <IDistanceGraphFactory>(),
-                                     Substitute.For <IAntSettingsFactory>(),
-                                     Substitute.For <IServiceColonyParameters>());
-        }
-
-        [Fact]
-        public void DisposeCallsDisposeTest()
-        {
-            // Arrange
-            var disposer = Substitute.For <IDisposer>();
-
-            ServiceColony sut = CreateSut(disposer);
-
-            // Act
-            sut.Dispose();
-
-            // Assert
-            disposer.Received().Dispose();
-        }
-
-        [Fact]
-        public void DisposeDoesNotCallsDisposeIfDisposedTest()
-        {
-            // Arrange
-            var disposer = Substitute.For <IDisposer>();
-            disposer.IsDisposed.Returns(true);
-
-            ServiceColony sut = CreateSut(disposer);
-
-            // Act
-            sut.Dispose();
-
-            // Assert
-            disposer.DidNotReceive().Dispose();
-        }
-
-        private static ServiceColony CreateSut(IDisposer disposer)
-        {
-            var sut = new ServiceColony(disposer,
-                                        Substitute.For <ISelkieBus>(),
-                                        Substitute.For <IColonyFactory>(),
-                                        Substitute.For <IDistanceGraphFactory>(),
-                                        Substitute.For <IAntSettingsFactory>(),
-                                        Substitute.For <IServiceColonyParameters>());
-            return sut;
+            bus.PublishAsync(Arg.Any <StoppedMessage>());
         }
 
         [Theory]
         [AutoNSubstituteData]
-        public void DPheromonesMinimumTest([NotNull] [Frozen] IColony colony,
-                                           [NotNull] ServiceColony sut)
+        public void OnStoppedSetsIsRunningToFalseTest([NotNull] ISelkieBus bus,
+                                                      [NotNull] EventArgs eventArgs)
         {
             // Arrange
-            colony.PheromonesMinimum.Returns(123.0);
+            ServiceColony sut = CreateSutGivenBus(bus);
+            SetIsRunningToTrue(sut);
 
             // Act
-            double actual = sut.PheromonesMinimum;
+            sut.OnStopped(this,
+                          eventArgs);
 
             // Assert
-            Assert.True(Math.Abs(123.0 - actual) < Tolerance);
-        }
-
-        [Theory]
-        [AutoNSubstituteData]
-        public void PheromonesMaximumTest([NotNull] [Frozen] IColony colony,
-                                          [NotNull] ServiceColony sut)
-        {
-            // Arrange
-            colony.PheromonesMaximum.Returns(1.0);
-
-            // Act
-            double actual = sut.PheromonesMaximum;
-
-            // Assert
-            Assert.True(Math.Abs(actual - colony.PheromonesMaximum) < Tolerance);
+            Assert.False(sut.IsRunning);
         }
 
         [Theory]
@@ -295,6 +256,21 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
             // Assert
             Assert.True(Math.Abs(actual - colony.PheromonesAverage) < Tolerance);
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void PheromonesMaximumTest([NotNull] [Frozen] IColony colony,
+                                          [NotNull] ServiceColony sut)
+        {
+            // Arrange
+            colony.PheromonesMaximum.Returns(1.0);
+
+            // Act
+            double actual = sut.PheromonesMaximum;
+
+            // Assert
+            Assert.True(Math.Abs(actual - colony.PheromonesMaximum) < Tolerance);
         }
 
         [Theory]
@@ -322,19 +298,6 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
         [Theory]
         [AutoNSubstituteData]
-        public void StopCallsColonyStopTest([NotNull] [Frozen] IColony colony,
-                                            [NotNull] ServiceColony sut)
-        {
-            // Arrange
-            // Act
-            sut.Stop();
-
-            // Assert
-            colony.Received().Stop();
-        }
-
-        [Theory]
-        [AutoNSubstituteData]
         public void StartCallsColonyStopTest([NotNull] [Frozen] IColony colony,
                                              [NotNull] ServiceColony sut)
         {
@@ -348,29 +311,66 @@ namespace Selkie.Services.Aco.Tests.XUnit
 
         [Theory]
         [AutoNSubstituteData]
-        public void ConstructorCallsAntSettingsFactoryTest([NotNull] [Frozen] IAntSettingsFactory factory,
-                                                           [NotNull] [Frozen] IServiceColonyParameters parameters,
-                                                           [NotNull] ServiceColony sut)
+        public void StopCallsColonyStopTest([NotNull] [Frozen] IColony colony,
+                                            [NotNull] ServiceColony sut)
         {
             // Arrange
             // Act
+            sut.Stop();
+
             // Assert
-            factory.Received().Create(parameters.IsFixedStartNode,
-                                      parameters.FixedStartNode);
+            colony.Received().Stop();
         }
 
-        [Theory]
-        [AutoNSubstituteData]
-        public void ConstructorCallsColonyFactoryTest([NotNull] [Frozen] IColonyFactory factory,
-                                                      [NotNull] [Frozen] IDistanceGraph graph,
-                                                      [NotNull] [Frozen] IAntSettings antSettings,
-                                                      [NotNull] ServiceColony sut)
+        private static ServiceColony CreateSut()
         {
-            // Arrange
-            // Act
-            // Assert
-            factory.Received().Create(graph,
-                                      antSettings);
+            return CreateSut(Substitute.For <IDisposer>());
+        }
+
+        private static ServiceColony CreateSut(IDisposer disposer)
+        {
+            var sut = new ServiceColony(disposer,
+                                        Substitute.For <ISelkieBus>(),
+                                        Substitute.For <IColonyFactory>(),
+                                        Substitute.For <IDistanceGraphFactory>(),
+                                        Substitute.For <IAntSettingsFactory>(),
+                                        Substitute.For <IServiceColonyParameters>());
+            return sut;
+        }
+
+        private static ServiceColony CreateSutGivenBus([NotNull] ISelkieBus bus)
+        {
+            return new ServiceColony(Substitute.For <IDisposer>(),
+                                     bus,
+                                     Substitute.For <IColonyFactory>(),
+                                     Substitute.For <IDistanceGraphFactory>(),
+                                     Substitute.For <IAntSettingsFactory>(),
+                                     Substitute.For <IServiceColonyParameters>());
+        }
+
+        private static bool IsMatchBestTrailMessage(BestTrailChangedEventArgs eventArgs,
+                                                    BestTrailMessage x)
+        {
+            // ReSharper disable once PossibleUnintendedReferenceComparison
+            return Math.Abs(x.Alpha - eventArgs.Alpha) < Tolerance && Math.Abs(x.Beta - eventArgs.Beta) < Tolerance &&
+                   Math.Abs(x.Gamma - eventArgs.Gamma) < Tolerance && x.Iteration == eventArgs.Iteration &&
+                   Math.Abs(x.Length - eventArgs.Length) < Tolerance && x.Trail == eventArgs.Trail &&
+                   x.Type == eventArgs.AntType;
+        }
+
+        private static bool IsMatchFinishedMessage(FinishedEventArgs eventArgs,
+                                                   FinishedMessage x)
+        {
+            return x.FinishTime == eventArgs.FinishTime && x.StartTime == eventArgs.StartTime &&
+                   x.Times == eventArgs.Times;
+        }
+
+        private void SetIsRunningToTrue(ServiceColony sut)
+        {
+            sut.OnStarted(this,
+                          new EventArgs());
+
+            Assert.True(sut.IsRunning);
         }
     }
 }
