@@ -11,10 +11,8 @@ using Selkie.Services.Common;
 namespace Selkie.Services.Aco
 {
     [ExcludeFromCodeCoverage]
-    //ncrunch: no coverage start
     public class Installer : SelkieInstaller <Installer>
     {
-        // ReSharper disable once CodeAnnotationAnalyzer
         protected override void InstallComponents(IWindsorContainer container,
                                                   IConfigurationStore store)
         {
@@ -28,13 +26,11 @@ namespace Selkie.Services.Aco
 
             container.Release(register);
 
-            // ReSharper disable MaximumChainedReferences
             container.Register(
                                Classes.FromThisAssembly()
                                       .BasedOn <IService>()
                                       .WithServiceFromInterface(typeof( IService ))
                                       .Configure(c => c.LifeStyle.Is(LifestyleType.Transient)));
-            // ReSharper restore MaximumChainedReferences
         }
     }
 }

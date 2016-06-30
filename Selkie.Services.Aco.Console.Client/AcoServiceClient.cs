@@ -11,7 +11,6 @@ using Selkie.Windsor.Extensions;
 namespace Selkie.Services.Aco.Console.Client
 {
     [ExcludeFromCodeCoverage]
-    //ncrunch: no coverage start
     public class AcoServiceClient : IAcoServiceClient
     {
         public AcoServiceClient([NotNull] ISelkieBus bus,

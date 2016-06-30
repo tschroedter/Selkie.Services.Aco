@@ -6,13 +6,12 @@ using Selkie.Services.Common;
 namespace Selkie.Services.Aco.Console
 {
     [ExcludeFromCodeCoverage]
-    //ncrunch: no coverage start
     public class Program : ServiceMain
     {
         public static void Main()
         {
             StartServiceAndRunForever(FromAssembly.This(),
-                                      AcoService.ServiceName);
+                                      Service.ServiceName);
 
             Environment.Exit(0);
         }

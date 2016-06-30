@@ -10,7 +10,7 @@ namespace Selkie.Services.Aco.Windows.Service
         public void Run()
         {
             StartServiceAndRunForever(FromAssembly.This(),
-                                      AcoService.ServiceName);
+                                      Aco.Service.ServiceName);
         }
     }
 }

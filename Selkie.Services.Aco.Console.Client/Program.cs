@@ -8,7 +8,6 @@ using Selkie.Services.Common;
 namespace Selkie.Services.Aco.Console.Client
 {
     [ExcludeFromCodeCoverage]
-    //ncrunch: no coverage start
     internal class Program
     {
         private static IServicesManager s_Manager;

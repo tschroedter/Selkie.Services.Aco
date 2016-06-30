@@ -1,4 +1,5 @@
-﻿Feature: ServiceAco
+﻿@LongRunningTest
+Feature: ServiceAco
 
 Scenario: Ping AcoService
 	Given Service is running

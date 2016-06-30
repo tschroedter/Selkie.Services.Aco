@@ -41,7 +41,7 @@ namespace Selkie.Services.Aco.Windows.Service
         {
             var message = new StopServiceRequestMessage
                           {
-                              ServiceName = AcoService.ServiceName
+                              ServiceName = Aco.Service.ServiceName
                           };
 
             m_Bus.PublishAsync(message);

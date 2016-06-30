@@ -9,10 +9,10 @@ namespace Selkie.Services.Aco.Specflow.Steps
         [Then(@"the result should be that I received a CreatedColonyMessage")]
         public override void Do()
         {
-            SleepWaitAndDo(() => ( bool ) ScenarioContext.Current [ "IsReceivedCreatedColonyMessage" ],
+            SleepWaitAndDo(() => GetBoolValueForScenarioContext("IsReceivedCreatedColonyMessage"),
                            WhenISendACreateColonyMessage);
 
-            Assert.True(( bool ) ScenarioContext.Current [ "IsReceivedCreatedColonyMessage" ]);
+            Assert.True(GetBoolValueForScenarioContext("IsReceivedCreatedColonyMessage"));
         }
 
         private void WhenISendACreateColonyMessage()

@@ -9,10 +9,10 @@ namespace Selkie.Services.Aco.Specflow.Steps
         [Then(@"the result should be that I received a BestTrailMessage")]
         public override void Do()
         {
-            SleepWaitAndDo(() => ( bool ) ScenarioContext.Current [ "IsReceivedBestTrailMessage" ],
+            SleepWaitAndDo(() => GetBoolValueForScenarioContext("IsReceivedBestTrailMessage"),
                            WhenISendAStartMessage);
 
-            Assert.True(( bool ) ScenarioContext.Current [ "IsReceivedBestTrailMessage" ]);
+            Assert.True(GetBoolValueForScenarioContext("IsReceivedBestTrailMessage"));
         }
 
         private void WhenISendAStartMessage()

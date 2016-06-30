@@ -22,6 +22,7 @@ namespace Selkie.Services.Aco.Specflow
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
     [NUnit.Framework.DescriptionAttribute("ServiceAco")]
+    [NUnit.Framework.Category("LongRunningTest")]
     public partial class ServiceAcoFeature
     {
         [NUnit.Framework.SetUpAttribute()]

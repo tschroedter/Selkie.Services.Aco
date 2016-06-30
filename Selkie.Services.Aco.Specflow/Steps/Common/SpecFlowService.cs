@@ -14,7 +14,10 @@ namespace Selkie.Services.Aco.Specflow.Steps.Common
 
         public void Dispose()
         {
-            m_ExeProcess.Exited -= ExeProcessOnExited;
+            if ( m_ExeProcess != null )
+            {
+                m_ExeProcess.Exited -= ExeProcessOnExited;
+            }
         }
 
         public void DeleteQueues()

@@ -9,10 +9,10 @@ namespace Selkie.Services.Aco.Specflow.Steps
         [Then(@"the result should be that I received a StartedMessage")]
         public override void Do()
         {
-            SleepWaitAndDo(() => ( bool ) ScenarioContext.Current [ "IsReceivedStartedMessage" ],
+            SleepWaitAndDo(() => GetBoolValueForScenarioContext("IsReceivedStartedMessage"),
                            WhenISendAStartMessage);
 
-            Assert.True(( bool ) ScenarioContext.Current [ "IsReceivedStartedMessage" ]);
+            Assert.True(GetBoolValueForScenarioContext("IsReceivedStartedMessage"));
         }
 
         private void WhenISendAStartMessage()
