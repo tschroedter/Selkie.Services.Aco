@@ -1,3 +1,4 @@
+using System;
 using Castle.Core;
 using Selkie.Aco.Anthill;
 using Selkie.Aop.Aspects;
@@ -40,6 +41,8 @@ namespace Selkie.Services.Aco
 
             FixedStartNode = 0;
         }
+
+        public Guid ColonyId { get; set; }
 
 
         public int[][] CostMatrix { get; set; }

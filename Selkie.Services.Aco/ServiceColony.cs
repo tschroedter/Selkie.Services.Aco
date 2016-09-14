@@ -6,10 +6,12 @@ using Selkie.Aco.Anthill.Interfaces;
 using Selkie.Aco.Anthill.TypedFactories;
 using Selkie.Aco.Common.Interfaces;
 using Selkie.Aop.Aspects;
+using Selkie.Aop.Messages;
 using Selkie.Common.Interfaces;
 using Selkie.EasyNetQ;
 using Selkie.Services.Aco.Common.Messages;
 using Selkie.Windsor;
+using Selkie.Windsor.Extensions;
 
 namespace Selkie.Services.Aco
 {
@@ -20,6 +22,7 @@ namespace Selkie.Services.Aco
           IDisposable
     {
         public ServiceColony([NotNull] IDisposer disposer,
+                             [NotNull] ISelkieLogger logger,
                              [NotNull] ISelkieBus bus,
                              [NotNull] IColonyFactory colonyFactory,
                              [NotNull] IDistanceGraphFactory graphFactory,
@@ -27,7 +30,10 @@ namespace Selkie.Services.Aco
                              [NotNull] IServiceColonyParameters parameters)
         {
             m_Disposer = disposer;
+            m_Logger = logger;
             m_Bus = bus;
+
+            ColonyId = parameters.ColonyId;
 
             IDistanceGraph graph = graphFactory.Create(parameters.CostMatrix,
                                                        parameters.CostPerFeature);
@@ -54,6 +60,7 @@ namespace Selkie.Services.Aco
         private readonly ISelkieBus m_Bus;
         private readonly IColony m_Colony;
         private readonly IDisposer m_Disposer;
+        private readonly ISelkieLogger m_Logger;
 
         public void Dispose()
         {
@@ -64,6 +71,8 @@ namespace Selkie.Services.Aco
 
             m_Disposer.Dispose();
         }
+
+        public Guid ColonyId { get; private set; }
 
         public bool IsRunning { get; set; }
 
@@ -96,14 +105,35 @@ namespace Selkie.Services.Aco
             return m_Colony.PheromonesToArray();
         }
 
-        public void Stop()
+        public void Start(Guid colonyId,
+                          int times)
         {
-            m_Colony.Stop();
+            CheckColonyIdBeforeExecute(ColonyId,
+                                       colonyId,
+                                       () => m_Colony.Start(times));
         }
 
-        public void Start(int times)
+        public void Stop(Guid colonyId)
         {
-            m_Colony.Start(times);
+            CheckColonyIdBeforeExecute(ColonyId,
+                                       colonyId,
+                                       () => m_Colony.Stop());
+        }
+
+        internal void CheckColonyIdBeforeExecute(
+            Guid expectedColonyId,
+            Guid actualColonyId,
+            Action action)
+        {
+            if ( expectedColonyId != actualColonyId )
+            {
+                HandleIncorrectColonyId(expectedColonyId,
+                                        actualColonyId);
+            }
+            else
+            {
+                action.Invoke();
+            }
         }
 
         internal void OnBestTrailChanged(object sender,
@@ -111,6 +141,7 @@ namespace Selkie.Services.Aco
         {
             var message = new BestTrailMessage
                           {
+                              ColonyId = ColonyId,
                               Alpha = e.Alpha,
                               Beta = e.Beta,
                               Gamma = e.Gamma,
@@ -128,6 +159,7 @@ namespace Selkie.Services.Aco
         {
             var message = new FinishedMessage
                           {
+                              ColonyId = ColonyId,
                               FinishTime = e.FinishTime,
                               StartTime = e.StartTime,
                               Times = e.Times
@@ -141,7 +173,10 @@ namespace Selkie.Services.Aco
         internal void OnStarted(object sender,
                                 EventArgs e)
         {
-            var message = new StartedMessage();
+            var message = new StartedMessage
+                          {
+                              ColonyId = ColonyId
+                          };
 
             m_Bus.PublishAsync(message);
 
@@ -151,11 +186,28 @@ namespace Selkie.Services.Aco
         internal void OnStopped(object sender,
                                 EventArgs e)
         {
-            var message = new StoppedMessage();
+            var message = new StoppedMessage
+                          {
+                              ColonyId = ColonyId
+                          };
 
             m_Bus.PublishAsync(message);
 
             IsRunning = false;
+        }
+
+        private void HandleIncorrectColonyId(
+            Guid expectedColonyId,
+            Guid actualColonyId)
+        {
+            string message = "Can't start colony with id {0} because current id is {1}".Inject(actualColonyId,
+                                                                                               expectedColonyId);
+            m_Logger.Error(message);
+
+            m_Bus.PublishAsync(new StatusMessage
+                               {
+                                   Text = message
+                               });
         }
 
         private void RegisterEventHandlers()

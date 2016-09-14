@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using NSubstitute;
 using NUnit.Framework;
@@ -19,11 +20,16 @@ namespace Selkie.Services.Aco.Tests.Handlers
                                         [NotNull] StopRequestHandler sut)
         {
             // Arrange
+            Guid colonyId = Guid.NewGuid();
+
             // Act
-            sut.Handle(new StopRequestMessage());
+            sut.Handle(new StopRequestMessage
+                       {
+                           ColonyId = colonyId
+                       });
 
             // Assert
-            colony.Received().Stop();
+            colony.Received().Stop(colonyId);
         }
     }
 }

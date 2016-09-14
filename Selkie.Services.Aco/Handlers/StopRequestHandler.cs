@@ -19,7 +19,7 @@ namespace Selkie.Services.Aco.Handlers
 
         public override void Handle(StopRequestMessage message)
         {
-            m_Manager.Source.Stop();
+            m_Manager.Source.Stop(message.ColonyId);
         }
     }
 }

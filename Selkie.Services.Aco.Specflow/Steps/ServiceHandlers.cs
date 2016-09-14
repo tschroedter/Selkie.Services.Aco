@@ -26,29 +26,40 @@ namespace Selkie.Services.Aco.Specflow.Steps.Common
 
         private void BestTrailHandler(BestTrailMessage message)
         {
+            ScenarioContext.Current [ "ColonyId_ReceivedBestTrailMessage" ] = message.ColonyId;
             ScenarioContext.Current [ "IsReceivedBestTrailMessage" ] = true;
 
             string trailText = string.Join(",",
                                            message.Trail);
 
-            Console.WriteLine("Iteration {0}: Length = {1} Trail = {2}".Inject(message.Iteration,
-                                                                               message.Length,
-                                                                               trailText));
-        }
-
-        private void StartedHandler(StartedMessage message)
-        {
-            ScenarioContext.Current [ "IsReceivedStartedMessage" ] = true;
-        }
-
-        private void FinishedHandler(FinishedMessage message)
-        {
-            ScenarioContext.Current [ "IsReceivedFinishedMessage" ] = true;
+            Console.WriteLine("[ColonyId: {0}] Iteration {1}: Length = {2} Trail = {3}".Inject(message.ColonyId,
+                                                                                               message.Iteration,
+                                                                                               message.Length,
+                                                                                               trailText));
         }
 
         private void CreatedColonyHandler(CreatedColonyMessage message)
         {
+            Console.WriteLine("[ColonyId: {0}] Created colony!".Inject(message.ColonyId));
+
+            ScenarioContext.Current [ "ColonyId_ReceivedCreatedColonyMessage" ] = message.ColonyId;
             ScenarioContext.Current [ "IsReceivedCreatedColonyMessage" ] = true;
+        }
+
+        private void FinishedHandler(FinishedMessage message)
+        {
+            Console.WriteLine("[ColonyId: {0}] Finished colony with!".Inject(message.ColonyId));
+
+            ScenarioContext.Current [ "ColonyId_ReceivedFinishedMessage" ] = message.ColonyId;
+            ScenarioContext.Current [ "IsReceivedFinishedMessage" ] = true;
+        }
+
+        private void StartedHandler(StartedMessage message)
+        {
+            Console.WriteLine("[ColonyId: {0}] Started colony!".Inject(message.ColonyId));
+
+            ScenarioContext.Current [ "ColonyId_ReceivedStartedMessage" ] = message.ColonyId;
+            ScenarioContext.Current [ "IsReceivedStartedMessage" ] = true;
         }
     }
 }

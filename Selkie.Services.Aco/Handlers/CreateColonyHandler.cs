@@ -28,6 +28,7 @@ namespace Selkie.Services.Aco.Handlers
                                                                     : AntSettings.TrailStartNodeType.Random;
             var parameters = new ServiceColonyParameters
                              {
+                                 ColonyId = message.ColonyId,
                                  CostMatrix = message.CostMatrix,
                                  CostPerFeature = message.CostPerFeature,
                                  IsFixedStartNode = trailStartNodeType,
@@ -38,7 +39,10 @@ namespace Selkie.Services.Aco.Handlers
 
             m_Manager.UpdateSource(colony);
 
-            m_Bus.PublishAsync(new CreatedColonyMessage());
+            m_Bus.PublishAsync(new CreatedColonyMessage
+                               {
+                                   ColonyId = colony.ColonyId
+                               });
         }
     }
 }

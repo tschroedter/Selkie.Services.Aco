@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 
 namespace Selkie.Services.Aco
 {
@@ -8,12 +9,14 @@ namespace Selkie.Services.Aco
         double PheromonesMinimum { get; }
         double PheromonesMaximum { get; }
         double PheromonesAverage { get; }
+        Guid ColonyId { get; }
 
         [NotNull]
         double[][] PheromonesToArray();
 
-        void Start(int times);
+        void Start(Guid colonyId,
+                   int times);
 
-        void Stop();
+        void Stop(Guid colonyId);
     }
 }

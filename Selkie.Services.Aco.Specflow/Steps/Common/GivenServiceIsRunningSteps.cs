@@ -26,6 +26,17 @@ namespace Selkie.Services.Aco.Specflow.Steps.Common
             m_Container.Dispose();
         }
 
+        [AfterScenario]
+        public void AfterScenario()
+        {
+            bool isExited = GetBoolValueForScenarioContext("IsExited");
+
+            if ( !isExited )
+            {
+                m_SpecFlowService.KillAndWaitForExit();
+            }
+        }
+
         [BeforeScenario]
         public void BeforeScenario()
         {
@@ -43,17 +54,6 @@ namespace Selkie.Services.Aco.Specflow.Steps.Common
             m_ServiceHandlers.Subscribe();
         }
 
-        [AfterScenario]
-        public void AfterScenario()
-        {
-            bool isExited = GetBoolValueForScenarioContext("IsExited");
-
-            if ( !isExited )
-            {
-                m_SpecFlowService.KillAndWaitForExit();
-            }
-        }
-
         [Given(@"Service is running")]
         public void Do()
         {
@@ -66,23 +66,23 @@ namespace Selkie.Services.Aco.Specflow.Steps.Common
                         "Didn't receive ping response!");
         }
 
+        private static bool GetBoolValueForScenarioContext([NotNull] string key)
+        {
+            if ( !ScenarioContext.Current.Keys.Contains(key) )
+            {
+                return false;
+            }
+
+            var result = ( bool ) ScenarioContext.Current [ key ];
+
+            return result;
+        }
+
         private void WhenISendAPingMessage()
         {
             var bus = ( ISelkieBus ) ScenarioContext.Current [ "ISelkieBus" ];
 
             bus.PublishAsync(new PingRequestMessage());
-        }
-
-        private static bool GetBoolValueForScenarioContext([NotNull] string key)
-        {
-            if (!ScenarioContext.Current.Keys.Contains(key))
-            {
-                return false;
-            }
-
-            var result = (bool)ScenarioContext.Current[key];
-
-            return result;
         }
     }
 }

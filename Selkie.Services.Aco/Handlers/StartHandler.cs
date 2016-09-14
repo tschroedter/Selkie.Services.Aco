@@ -19,7 +19,8 @@ namespace Selkie.Services.Aco.Handlers
 
         public override void Handle(StartMessage message)
         {
-            m_Manager.Source.Start(message.Times);
+            m_Manager.Source.Start(message.ColonyId,
+                                   message.Times);
         }
     }
 }

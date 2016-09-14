@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using NUnit.Framework;
 
 namespace Selkie.Services.Aco.Tests
@@ -7,6 +8,21 @@ namespace Selkie.Services.Aco.Tests
     [TestFixture]
     internal sealed class ServiceColonyParametersTests
     {
+        [Test]
+        public void ColonyIdRoundtripTest()
+        {
+            // Arrange
+            var sut = new ServiceColonyParameters();
+            Guid expected = Guid.NewGuid();
+
+            // Act
+            sut.ColonyId = expected;
+
+            // Assert
+            Assert.AreEqual(expected,
+                            sut.ColonyId);
+        }
+
         [Test]
         public void CostMatrixRoundtripTest()
         {

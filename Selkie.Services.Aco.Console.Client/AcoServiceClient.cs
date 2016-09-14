@@ -13,6 +13,8 @@ namespace Selkie.Services.Aco.Console.Client
     [ExcludeFromCodeCoverage]
     public class AcoServiceClient : IAcoServiceClient
     {
+        private readonly Guid m_ColonyId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
         public AcoServiceClient([NotNull] ISelkieBus bus,
                                 [NotNull] ISelkieConsole console,
                                 [NotNull] IExceptionThrownMessageToStringConverter converter)
@@ -94,6 +96,7 @@ namespace Selkie.Services.Aco.Console.Client
 
             var request = new CreateColonyMessage
                           {
+                              ColonyId = m_ColonyId,
                               CostMatrix = m_CostMatrix,
                               CostPerFeature = m_CostPerFeature
                           };
@@ -109,6 +112,7 @@ namespace Selkie.Services.Aco.Console.Client
 
             var request = new CreateColonyMessage
                           {
+                              ColonyId = m_ColonyId,
                               CostMatrix = new[]
                                            {
                                                new[]
@@ -135,6 +139,7 @@ namespace Selkie.Services.Aco.Console.Client
 
             var request = new StartMessage
                           {
+                              ColonyId = m_ColonyId,
                               Times = 10
                           };
 

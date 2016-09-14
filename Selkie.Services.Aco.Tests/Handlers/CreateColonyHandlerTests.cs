@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using NSubstitute;
 using NUnit.Framework;
 using Selkie.EasyNetQ;
@@ -59,15 +60,19 @@ namespace Selkie.Services.Aco.Tests.Handlers
         {
             // Arrange
             var bus = Substitute.For <ISelkieBus>();
+            var colony = Substitute.For <IServiceColony>();
+            colony.ColonyId.Returns(Guid.NewGuid());
+            var manager = Substitute.For <IColonySourceManager>();
+            manager.CreateColony(Arg.Any <ServiceColonyParameters>()).Returns(colony);
 
             var sut = new CreateColonyHandler(bus,
-                                              Substitute.For <IColonySourceManager>());
+                                              manager);
 
             // Act
             sut.Handle(new CreateColonyMessage());
 
             // Assert
-            bus.Received().PublishAsync(Arg.Any <CreatedColonyMessage>());
+            bus.Received().PublishAsync(Arg.Is <CreatedColonyMessage>(x => x.ColonyId == colony.ColonyId));
         }
     }
 }

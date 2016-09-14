@@ -1,3 +1,4 @@
+using System;
 using JetBrains.Annotations;
 using Selkie.Aco.Anthill;
 
@@ -14,5 +15,6 @@ namespace Selkie.Services.Aco
         AntSettings.TrailStartNodeType IsFixedStartNode { get; set; }
 
         int FixedStartNode { get; set; }
+        Guid ColonyId { get; set; }
     }
 }

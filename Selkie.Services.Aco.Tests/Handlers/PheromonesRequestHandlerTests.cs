@@ -13,7 +13,7 @@ namespace Selkie.Services.Aco.Tests.Handlers
 {
     [ExcludeFromCodeCoverage]
     [TestFixture]
-    internal sealed class PheromonesRequestHandlerHandlerTests
+    internal sealed class PheromonesRequestHandlerTests
     {
         private const double Tolerance = 0.01;
 
@@ -32,6 +32,7 @@ namespace Selkie.Services.Aco.Tests.Handlers
                .PublishAsync(
                              Arg.Is <PheromonesMessage>(
                                                         x =>
+                                                        x.ColonyId == colony.ColonyId &&
                                                         Math.Abs(x.Average - colony.PheromonesAverage) < Tolerance &&
                                                         Math.Abs(x.Minimum - colony.PheromonesMinimum) < Tolerance));
         }

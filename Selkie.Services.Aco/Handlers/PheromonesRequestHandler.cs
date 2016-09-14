@@ -26,6 +26,7 @@ namespace Selkie.Services.Aco.Handlers
 
             var reply = new PheromonesMessage
                         {
+                            ColonyId = colony.ColonyId,
                             Average = colony.PheromonesAverage,
                             Maximum = colony.PheromonesMaximum,
                             Minimum = colony.PheromonesMinimum,

@@ -12,6 +12,7 @@ using Selkie.Common.Interfaces;
 using Selkie.EasyNetQ;
 using Selkie.NUnit.Extensions;
 using Selkie.Services.Aco.Common.Messages;
+using Selkie.Windsor;
 
 namespace Selkie.Services.Aco.Tests
 {
@@ -20,6 +21,45 @@ namespace Selkie.Services.Aco.Tests
     internal sealed class ServiceColonyTests
     {
         private const double Tolerance = 0.01;
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void CheckColonyIdBeforeExecute_Execute_ForMatchingColonyIds(
+            [NotNull] Guid colonyId,
+            [NotNull] [Frozen] ServiceColony sut)
+        {
+            // Arrange
+            var wasExecuted = false;
+            var action = new Action(() => wasExecuted = true);
+
+            // Act
+            sut.CheckColonyIdBeforeExecute(colonyId,
+                                           colonyId,
+                                           action);
+
+            // Assert
+            Assert.True(wasExecuted);
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void CheckColonyIdBeforeExecute_DoesNotExecute_ForNotMatchingColonyIds(
+            [NotNull] Guid colonyIdOne,
+            [NotNull] Guid colonyIdTwo,
+            [NotNull] [Frozen] ServiceColony sut)
+        {
+            // Arrange
+            var wasExecuted = false;
+            var action = new Action(() => wasExecuted = true);
+
+            // Act
+            sut.CheckColonyIdBeforeExecute(colonyIdOne,
+                                           colonyIdTwo,
+                                           action);
+
+            // Assert
+            Assert.False(wasExecuted);
+        }
 
         [Theory]
         [AutoNSubstituteData]
@@ -50,8 +90,20 @@ namespace Selkie.Services.Aco.Tests
 
         [Theory]
         [AutoNSubstituteData]
-        public void DPheromonesMinimumTest([NotNull] [Frozen] IColony colony,
-                                           [NotNull] ServiceColony sut)
+        public void ColonyIdTest([NotNull] [Frozen] IServiceColonyParameters parameters,
+                                 [NotNull] ServiceColony sut)
+        {
+            // Arrange
+            // Act
+            // Assert
+            Assert.AreEqual(parameters.ColonyId,
+                            sut.ColonyId);
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void PheromonesMinimumTest([NotNull] [Frozen] IColony colony,
+                                          [NotNull] ServiceColony sut)
         {
             // Arrange
             colony.PheromonesMinimum.Returns(123.0);
@@ -65,36 +117,44 @@ namespace Selkie.Services.Aco.Tests
 
         [Theory]
         [AutoNSubstituteData]
-        public void OnBestTrailChangedSendsMessageTest([NotNull] ISelkieBus bus,
-                                                       [NotNull] BestTrailChangedEventArgs eventArgs)
+        public void OnBestTrailChangedSendsMessageUsingEventsValuesTest(
+            [NotNull] ISelkieBus bus,
+            [NotNull] IServiceColonyParameters parameters,
+            [NotNull] BestTrailChangedEventArgs eventArgs)
         {
             // Arrange
-            ServiceColony sut = CreateSutGivenBus(bus);
+            ServiceColony sut = CreateSutGivenBusAndParameters(bus,
+                                                               parameters);
 
             // Act
             sut.OnBestTrailChanged(this,
                                    eventArgs);
 
             // Assert
-            bus.PublishAsync(Arg.Is <BestTrailMessage>(x => IsMatchBestTrailMessage(eventArgs,
-                                                                                    x)));
+            bus.Received().PublishAsync(Arg.Is <BestTrailMessage>(x => IsMatchBestTrailMessage(sut.ColonyId,
+                                                                                               eventArgs,
+                                                                                               x)));
         }
 
         [Theory]
         [AutoNSubstituteData]
-        public void OnFinishedChangedSendsMessageTest([NotNull] ISelkieBus bus,
-                                                      [NotNull] FinishedEventArgs eventArgs)
+        public void OnFinishedChangedSendsMessageTest(
+            [NotNull] ISelkieBus bus,
+            [NotNull] IServiceColonyParameters parameters,
+            [NotNull] FinishedEventArgs eventArgs)
         {
             // Arrange
-            ServiceColony sut = CreateSutGivenBus(bus);
+            ServiceColony sut = CreateSutGivenBusAndParameters(bus,
+                                                               parameters);
 
             // Act
             sut.OnFinished(this,
                            eventArgs);
 
             // Assert
-            bus.PublishAsync(Arg.Is <FinishedMessage>(x => IsMatchFinishedMessage(eventArgs,
-                                                                                  x)));
+            bus.Received().PublishAsync(Arg.Is <FinishedMessage>(x => IsMatchFinishedMessage(sut.ColonyId,
+                                                                                             eventArgs,
+                                                                                             x)));
         }
 
         [Theory]
@@ -116,18 +176,21 @@ namespace Selkie.Services.Aco.Tests
 
         [Theory]
         [AutoNSubstituteData]
-        public void OnStartedSendsMessageTest([NotNull] ISelkieBus bus,
-                                              [NotNull] EventArgs eventArgs)
+        public void OnStartedSendsMessageTest(
+            [NotNull] ISelkieBus bus,
+            [NotNull] IServiceColonyParameters parameters,
+            [NotNull] EventArgs eventArgs)
         {
             // Arrange
-            ServiceColony sut = CreateSutGivenBus(bus);
+            ServiceColony sut = CreateSutGivenBusAndParameters(bus,
+                                                               parameters);
 
             // Act
             sut.OnStarted(this,
                           eventArgs);
 
             // Assert
-            bus.PublishAsync(Arg.Any <StartedMessage>());
+            bus.Received().PublishAsync(Arg.Is <StartedMessage>(x => x.ColonyId == parameters.ColonyId));
         }
 
         [Theory]
@@ -147,18 +210,21 @@ namespace Selkie.Services.Aco.Tests
 
         [Theory]
         [AutoNSubstituteData]
-        public void OnStoppedSendsMessageTest([NotNull] ISelkieBus bus,
-                                              [NotNull] EventArgs eventArgs)
+        public void OnStoppedSendsMessageTest(
+            [NotNull] ISelkieBus bus,
+            [NotNull] IServiceColonyParameters parameters,
+            [NotNull] EventArgs eventArgs)
         {
             // Arrange
-            ServiceColony sut = CreateSutGivenBus(bus);
+            ServiceColony sut = CreateSutGivenBusAndParameters(bus,
+                                                               parameters);
 
             // Act
             sut.OnStopped(this,
                           eventArgs);
 
             // Assert
-            bus.PublishAsync(Arg.Any <StoppedMessage>());
+            bus.Received().PublishAsync(Arg.Is <StoppedMessage>(x => x.ColonyId == parameters.ColonyId));
         }
 
         [Theory]
@@ -233,15 +299,38 @@ namespace Selkie.Services.Aco.Tests
 
         [Theory]
         [AutoNSubstituteData]
-        public void StartCallsColonyStopTest([NotNull] [Frozen] IColony colony,
-                                             [NotNull] ServiceColony sut)
+        public void StartCallsColonyStartTest(
+            [NotNull] [Frozen] IColony colony,
+            [NotNull] [Frozen] ServiceColony sut)
         {
             // Arrange
             // Act
-            sut.Start(1);
+            sut.Start(sut.ColonyId,
+                      1);
 
             // Assert
             colony.Received().Start(1);
+        }
+
+        [Theory]
+        [AutoNSubstituteData]
+        public void Start_DoesNotCallStart_ForNotMatchingColonyIds(
+            [NotNull] [Frozen] IColony colony,
+            [NotNull] [Frozen] ISelkieBus bus,
+            [NotNull] [Frozen] IServiceColonyParameters parameter)
+        {
+            // Arrange
+            Guid notMatchingColonyId = Guid.NewGuid();
+
+            ServiceColony sut = CreateSutGivenBusAndParameters(bus,
+                                                               parameter);
+
+            // Act
+            sut.Start(notMatchingColonyId,
+                      1);
+
+            // Assert
+            colony.DidNotReceiveWithAnyArgs().Start(1);
         }
 
         [Theory]
@@ -251,7 +340,7 @@ namespace Selkie.Services.Aco.Tests
         {
             // Arrange
             // Act
-            sut.Stop();
+            sut.Stop(sut.ColonyId);
 
             // Assert
             colony.Received().Stop();
@@ -265,6 +354,7 @@ namespace Selkie.Services.Aco.Tests
         private static ServiceColony CreateSut(IDisposer disposer)
         {
             var sut = new ServiceColony(disposer,
+                                        Substitute.For <ISelkieLogger>(),
                                         Substitute.For <ISelkieBus>(),
                                         Substitute.For <IColonyFactory>(),
                                         Substitute.For <IDistanceGraphFactory>(),
@@ -273,29 +363,45 @@ namespace Selkie.Services.Aco.Tests
             return sut;
         }
 
-        private static ServiceColony CreateSutGivenBus([NotNull] ISelkieBus bus)
+        private static ServiceColony CreateSutGivenBus(
+            [NotNull] ISelkieBus bus)
+        {
+            return CreateSutGivenBusAndParameters(bus,
+                                                  Substitute.For <IServiceColonyParameters>());
+        }
+
+        private static ServiceColony CreateSutGivenBusAndParameters(
+            [NotNull] ISelkieBus bus,
+            [NotNull] IServiceColonyParameters parameters)
         {
             return new ServiceColony(Substitute.For <IDisposer>(),
+                                     Substitute.For <ISelkieLogger>(),
                                      bus,
                                      Substitute.For <IColonyFactory>(),
                                      Substitute.For <IDistanceGraphFactory>(),
                                      Substitute.For <IAntSettingsFactory>(),
-                                     Substitute.For <IServiceColonyParameters>());
+                                     parameters);
         }
 
-        private static bool IsMatchBestTrailMessage(BestTrailChangedEventArgs eventArgs,
-                                                    BestTrailMessage x)
+        private static bool IsMatchBestTrailMessage(
+            Guid colonyId,
+            BestTrailChangedEventArgs eventArgs,
+            BestTrailMessage x)
         {
-            return Math.Abs(x.Alpha - eventArgs.Alpha) < Tolerance && Math.Abs(x.Beta - eventArgs.Beta) < Tolerance &&
+            return x.ColonyId == colonyId &&
+                   Math.Abs(x.Alpha - eventArgs.Alpha) < Tolerance && Math.Abs(x.Beta - eventArgs.Beta) < Tolerance &&
                    Math.Abs(x.Gamma - eventArgs.Gamma) < Tolerance && x.Iteration == eventArgs.Iteration &&
                    Math.Abs(x.Length - eventArgs.Length) < Tolerance && x.Trail == eventArgs.Trail &&
                    x.Type == eventArgs.AntType;
         }
 
-        private static bool IsMatchFinishedMessage(FinishedEventArgs eventArgs,
-                                                   FinishedMessage x)
+        private static bool IsMatchFinishedMessage(
+            Guid colonyId,
+            FinishedEventArgs eventArgs,
+            FinishedMessage x)
         {
-            return x.FinishTime == eventArgs.FinishTime && x.StartTime == eventArgs.StartTime &&
+            return x.ColonyId == colonyId &&
+                   x.FinishTime == eventArgs.FinishTime && x.StartTime == eventArgs.StartTime &&
                    x.Times == eventArgs.Times;
         }
 
@@ -319,6 +425,7 @@ namespace Selkie.Services.Aco.Tests
 
             // Act
             var sut = new ServiceColony(Substitute.For <IDisposer>(),
+                                        Substitute.For <ISelkieLogger>(),
                                         Substitute.For <ISelkieBus>(),
                                         factory,
                                         Substitute.For <IDistanceGraphFactory>(),

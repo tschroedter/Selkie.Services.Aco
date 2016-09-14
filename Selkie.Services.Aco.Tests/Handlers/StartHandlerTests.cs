@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using NSubstitute;
 using NUnit.Framework;
@@ -15,18 +16,22 @@ namespace Selkie.Services.Aco.Tests.Handlers
     {
         [Theory]
         [AutoNSubstituteData]
-        public void HandleCallsStopTest([NotNull] [Frozen] IServiceColony colony,
-                                        [NotNull] StartHandler sut)
+        public void HandleCallsStartTest([NotNull] [Frozen] IServiceColony colony,
+                                         [NotNull] StartHandler sut)
         {
             // Arrange
+            Guid colonyId = Guid.NewGuid();
+
             // Act
             sut.Handle(new StartMessage
                        {
+                           ColonyId = colonyId,
                            Times = 1000
                        });
 
             // Assert
-            colony.Received().Start(1000);
+            colony.Received().Start(colonyId,
+                                    1000);
         }
     }
 }
